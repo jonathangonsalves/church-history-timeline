@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#4a6a4a"/>
+    <!-- dark scholar robe -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#4a4a4a"/>
+    <!-- open Bible on lap -->
+    <rect x="32" y="88" width="22" height="16" rx="1" fill="#c8a060" transform="rotate(-5,43,96)"/>
+    <rect x="50" y="88" width="22" height="16" rx="1" fill="#d8b070" transform="rotate(5,61,96)"/>
+    <line x1="42" y1="90" x2="42" y2="102" stroke="#9a7030" stroke-width="0.8" transform="rotate(-5,42,96)"/>
+    <!-- face -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#dab080"/>
+    <!-- gray/white hair -->
+    <path d="M36,52 Q37,27 60,25 Q83,27 84,52 Q80,38 60,36 Q40,38 36,52Z" fill="#b0b0b0"/>
+    <!-- side hair hanging -->
+    <ellipse cx="36" cy="62" rx="6" ry="12" fill="#b0b0b0"/>
+    <ellipse cx="84" cy="62" rx="6" ry="12" fill="#b0b0b0"/>
+    <!-- eyes -->
+    <circle cx="52" cy="53" r="3.5" fill="white"/>
+    <circle cx="68" cy="53" r="3.5" fill="white"/>
+    <circle cx="52" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="52.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="52.3" r=".8" fill="white"/>
+    <!-- brows (gray) -->
+    <path d="M46,47 Q52,45 57,47" stroke="#909090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,47 Q68,45 74,47" stroke="#909090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="61" r="1.5" fill="#a07850" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,68 Q60,72 66,68" stroke="#b07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- short gray beard -->
+    <path d="M38,72 Q60,78 82,72 Q82,84 60,86 Q38,84 38,72Z" fill="#b0b0b0" opacity="0.8"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

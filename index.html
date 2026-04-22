@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linha do Tempo da Igreja Cristã</title>
+  <style>
+    :root {
+      --cream:      #faf8f2;
+      --cream-dark: #ede8d8;
+      --ink:        #1e1008;
+      --ink-soft:   #5c4030;
+      --gold:       #c8a030;
+      --gold-light: #f0d060;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    #header {
+      background: linear-gradient(135deg, #1e1008 0%, #3a1808 60%, #1e1008 100%);
+      padding: 20px 28px 16px;
+      text-align: center;
+      border-bottom: 4px solid var(--gold);
+    }
+    #header h1 {
+      font-size: clamp(0.95rem, 2.2vw, 1.5rem);
+      color: var(--gold-light);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+    #header p {
+      color: #c8b898;
+      font-size: 0.82rem;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* ── PERIOD TABS ─────────────────────────────── */
+    #timeline-nav {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-bottom: 3px solid #ddd0b8;
+      background: #f0ebe0;
+    }
+    #timeline-nav::-webkit-scrollbar { height: 3px; }
+    #timeline-nav::-webkit-scrollbar-thumb { background: var(--gold); }
+
+    #period-tabs {
+      display: flex;
+      min-width: max-content;
+    }
+
+    .period-tab {
+      cursor: pointer;
+      padding: 14px 22px 12px;
+      border-right: 1px solid #ddd0b8;
+      border-bottom: 4px solid transparent;
+      transition: all 0.18s;
+      user-select: none;
+      text-align: center;
+      white-space: nowrap;
+      position: relative;
+    }
+    .period-tab:hover { filter: brightness(1.08); }
+    .period-tab.active { border-bottom-color: var(--ink) !important; }
+    .period-tab .tab-icon { font-size: 1.3rem; display: block; margin-bottom: 3px; }
+    .period-tab .tab-year { font-size: 1rem; font-weight: bold; display: block; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    .period-tab .tab-name { font-size: 0.62rem; display: block; color: rgba(255,255,255,0.85); margin-top: 1px; letter-spacing: 0.03em; }
+
+    /* ── MAIN CONTENT ────────────────────────────── */
+    #content-area {
+      flex: 1;
+      padding: 20px;
+      max-width: none;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    /* Welcome state */
+    #welcome {
+      text-align: center;
+      padding: 64px 20px;
+      color: var(--ink-soft);
+    }
+    #welcome .w-icon { font-size: 4rem; margin-bottom: 18px; }
+    #welcome h2 { font-size: 1.4rem; color: var(--ink); margin-bottom: 10px; }
+    #welcome p { max-width: 400px; margin: 0 auto; line-height: 1.7; font-size: 0.9rem; }
+
+    /* Period header */
+    .period-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--cream-dark);
+    }
+    .period-header .ph-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+      border: 3px solid rgba(0,0,0,0.15);
+    }
+    .period-header h2 { font-size: 1.45rem; color: var(--ink); line-height: 1.2; }
+    .period-header .ph-years { font-size: 0.82rem; color: var(--ink-soft); margin-top: 2px; font-style: italic; }
+    .period-header .ph-theme { font-size: 0.85rem; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; max-width: 600px; }
+
+    /* Events grid */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 16px;
+    }
+
+    .event-card {
+      background: white;
+      border-radius: 10px;
+      border: 1.5px solid #e0d8c8;
+      padding: 18px 18px 14px;
+      position: relative;
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: default;
+    }
+    .event-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      border-color: #c8a878;
+    }
+    .event-card .ec-stripe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 5px;
+      border-radius: 10px 10px 0 0;
+    }
+    .event-card .ec-icon {
+      font-size: 2rem;
+      float: right;
+      margin: 0 0 4px 10px;
+      opacity: 0.75;
+    }
+    .event-card .ec-year {
+      font-size: 0.72rem;
+      font-weight: bold;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .event-card .ec-title {
+      font-size: 0.98rem;
+      font-weight: bold;
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .event-card .ec-desc {
+      font-size: 0.81rem;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      clear: both;
+    }
+    .event-card .ec-tags {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: bold;
+      letter-spacing: 0.02em;
+    }
+    .tag-teologia  { background: #e4f0e4; color: #1a4a1a; }
+    .tag-concilio  { background: #e4e8f4; color: #1a2a5a; }
+    .tag-missao    { background: #f4ede4; color: #5a3a10; }
+    .tag-reforma   { background: #f4e4e4; color: #5a1a1a; }
+    .tag-politico  { background: #ede4f4; color: #3a1a5a; }
+    .tag-cisma     { background: #f4e4e4; color: #5a1a1a; border: 1px solid #e0aaaa; }
+    .tag-monastico { background: #e4f4ee; color: #1a4a34; }
+    .tag-martir    { background: #f4e8e4; color: #5a1a0a; }
+
+    /* ── FIGURES STRIP ──────────────────────────── */
+    #figures-section {
+      background: #f0ebe0;
+      border-top: 3px solid #ddd0b8;
+      padding: 20px 28px 16px;
+    }
+    #figures-section h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink-soft);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    #figures-scroll {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+      justify-content: flex-start;
+    }
+    #figures-scroll::-webkit-scrollbar { height: 3px; }
+    #figures-scroll::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+    .figure-card {
+      flex-shrink: 0;
+      text-align: center;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 10px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .figure-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.6); }
+    .figure-card img {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: block;
+    }
+    .figure-card .fc-name {
+      font-size: 0.65rem;
+      font-weight: bold;
+      color: var(--ink);
+      margin-top: 6px;
+      line-height: 1.2;
+      max-width: 70px;
+    }
+    .figure-card .fc-year {
+      font-size: 0.58rem;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    /* ── MODAL ────────────────────────────────── */
+    #modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(30,16,8,0.65);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    #modal-overlay.open { display: flex; }
+
+    #modal-box {
+      background: white;
+      border-radius: 16px;
+      padding: 0;
+      max-width: 500px;
+      width: 92%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+      overflow: hidden;
+      position: relative;
+    }
+    #modal-top {
+      padding: 28px 28px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    #modal-portrait {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 4px solid white;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    #modal-name { font-size: 1.3rem; font-weight: bold; color: var(--ink); }
+    #modal-meta { font-size: 0.8rem; color: var(--ink-soft); margin-top: 3px; font-style: italic; }
+    #modal-body {
+      padding: 0 28px 28px;
+    }
+    #modal-bio { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.7; }
+    #modal-contribution {
+      margin-top: 16px;
+      background: var(--cream);
+      border-left: 4px solid var(--gold);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+    }
+    #modal-contribution h4 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+    #modal-contribution p { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.6; }
+    #modal-close {
+      position: absolute; top: 14px; right: 16px;
+      background: #f0ebe0; border: none;
+      width: 28px; height: 28px; border-radius: 50%;
+      font-size: 1rem; cursor: pointer; color: var(--ink-soft);
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    #modal-close:hover { background: var(--cream-dark); color: var(--ink); }
+
+    @media (max-width: 640px) {
+      .events-grid { grid-template-columns: 1fr; }
+      #content-area { padding: 20px 14px; }
+    }
+
+    /* ── VER TUDO — OVERVIEW ─────────────────────── */
+    .ver-tudo-tab {
+      cursor: pointer;
+      padding: 14px 20px 12px;
+      border-right: 2px solid #ddd0b8;
+      border-bottom: 4px solid transparent;
+      background: #2a1808;
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+      transition: all 0.18s;
+      flex-shrink: 0;
+    }
+    .ver-tudo-tab:hover { background: #3a2010; }
+    .ver-tudo-tab.active { border-bottom-color: var(--gold-light); }
+    .ver-tudo-tab .vt-icon { font-size: 1.3rem; display: block; }
+    .ver-tudo-tab .vt-label { font-size: 0.72rem; display: block; color: var(--gold); font-weight: bold; letter-spacing: 0.05em; margin-top: 2px; text-transform: uppercase; }
+
+    #overview-area {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 24px 20px;
+      background: var(--cream);
+    }
+    #overview-area::-webkit-scrollbar { height: 6px; }
+    #overview-area::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+    .overview-grid {
+      display: flex;
+      gap: 0;
+      min-width: max-content;
+      align-items: stretch;
+      border: 1.5px solid #d8d0c0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .ov-col {
+      width: 280px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 1.5px solid #d8d0c0;
+      background: white;
+    }
+    .ov-col:last-child { border-right: none; }
+
+    .ov-col-header {
+      padding: 12px 10px 10px;
+      color: white;
+      text-align: center;
+      height: 165px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .ov-col-header .ov-h-icon { font-size: 1.6rem; display: block; margin-bottom: 3px; }
+    .ov-col-header .ov-h-year { font-size: 1.1rem; font-weight: bold; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .ov-col-header .ov-h-name { font-size: 0.65rem; display: block; opacity: 0.9; margin-top: 2px; letter-spacing: 0.03em; }
+
+    .ov-events {
+      flex: 1;
+      padding: 12px 10px 8px 10px;
+      background: #faf8f2;
+      border-top: 2px solid rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    /* vertical timeline spine */
+    .ov-events::before {
+      content: '';
+      position: absolute;
+      left: 29px;
+      top: 16px;
+      bottom: 16px;
+      width: 2px;
+      background: var(--ov-spine, #ccc);
+      opacity: 0.35;
+    }
+
+    .ov-event {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin-bottom: 12px;
+      cursor: default;
+      position: relative;
+    }
+    .ov-event:last-child { margin-bottom: 4px; }
+
+    /* Absolute-positioned events for time-aligned parallel tracks */
+    .ov-event-abs {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      margin-bottom: 0 !important;
+      background: #faf8f2;
+      border-radius: 6px;
+      transition: top 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ov-event-abs.expanded { z-index: 5; }
+    .ov-event-abs.branch-lane .oe-title { font-size: 0.7rem; }
+
+    .branch-fork-svg, .branch-merge-svg { transition: top 0.55s cubic-bezier(0.4,0,0.2,1); }
+
+    .oe-bubble {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--period-color, #888);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      position: relative;
+      z-index: 1;
+      opacity: 0.92;
+    }
+
+    .oe-body { flex: 1; padding-top: 2px; }
+    .oe-year {
+      font-size: 0.6rem;
+      font-weight: bold;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .oe-title {
+      font-size: 0.76rem;
+      font-weight: bold;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+    .oe-toggle {
+      float: right;
+      font-size: 0.65rem;
+      color: var(--gold);
+      margin-left: 4px;
+      transition: transform 0.2s;
+      line-height: 1.2;
+    }
+    .ov-event { cursor: pointer; }
+    .ov-event:hover .oe-bubble { filter: brightness(1.15); }
+    .ov-event.expanded .oe-toggle { transform: rotate(180deg); }
+    .oe-full-desc {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      font-size: 0.68rem;
+      color: var(--ink-soft);
+      line-height: 1.55;
+      margin-top: 0;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.2s;
+    }
+    .ov-event.expanded .oe-full-desc {
+      max-height: 150px;
+      opacity: 1;
+      margin-top: 5px;
+    }
+
+    .ov-figures {
+      padding: 8px 6px 10px;
+      background: #f0ebe0;
+      border-top: 1.5px solid #d8d0c0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .ov-figure {
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .ov-figure:hover { transform: translateY(-3px); }
+    .ov-figure img {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      display: block;
+    }
+    .ov-figure .of-name {
+      font-size: 0.55rem;
+      color: var(--ink);
+      font-weight: bold;
+      margin-top: 3px;
+      line-height: 1.2;
+      max-width: 52px;
+    }
+
+    /* ── PARALLEL BRANCH ────────────────────────── */
+    .ov-col.has-parallel { width: 560px; }
+
+    .ov-tracks {
+      display: flex;
+      flex: 1;
+    }
+
+    .ov-track {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .ov-track.track-parallel {
+      background: #f5f3ec;
+      border-left: 2px dashed #d0c8b0;
+    }
+
+    .ov-track-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      font-size: 0.6rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .ov-track-label .tl-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .track-main .ov-track-label   { background: rgba(255,255,255,0.6); color: var(--ink-soft); }
+    .track-parallel .ov-track-label { background: rgba(0,0,0,0.04); }
+
+    /* ── INLINE BRANCH (overlapping events) ──────── */
+    .branch-fork-svg, .branch-merge-svg {
+      display: block;
+      width: 100%;
+      height: 26px;
+      overflow: visible;
+    }
+    .branch-group {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .branch-group .ov-event {
+      flex: 1;
+      min-width: 0;
+      margin-bottom: 0 !important;
+      background: #f2f0e8;
+      border-radius: 6px;
+      padding: 3px 3px 3px 0;
+    }
+    .branch-group .ov-event .oe-title { font-size: 0.7rem; }
+
+    /* ── TOOLBAR ──────────────────────────────────── */
+    .ov-toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .ov-tb-btn {
+      background: var(--ink);
+      color: var(--gold-light);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 0.78rem;
+      font-family: Georgia, serif;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ov-tb-btn:hover { background: #3a1808; border-color: var(--gold); }
+
+    /* ── PARALLEL TRACK COLLAPSE ───────────────────── */
+    .ov-track.track-parallel.collapsed {
+      display: none;
+    }
+    .ov-col.has-parallel.parallel-collapsed { width: 280px; }
+
+    /* Fork connector / toggle banner */
+    .ov-fork-banner {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      gap: 8px;
+      font-size: 0.62rem;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      color: white;
+      border-top: 1.5px solid rgba(255,255,255,0.25);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+      opacity: 0.92;
+    }
+    .ov-fork-banner:hover { background: rgba(255,255,255,0.12); opacity: 1; }
+    .ov-fork-banner .fork-icon { font-size: 1rem; }
+    .ov-fork-banner .fork-label { flex: 1; }
+    .fork-chevron {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+    .ov-fork-banner:hover .fork-chevron { opacity: 1; }
+
+    /* Collapsed state — keep row layout, just restyle as invitation */
+    @keyframes hint-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+      55%       { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+    }
+    .ov-col.parallel-collapsed .ov-fork-banner {
+      border-top: none;
+      margin: 5px 8px 6px;
+      border-radius: 7px;
+      border: 1.5px dashed rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.1);
+      opacity: 1;
+      animation: hint-pulse 2.4s ease-out infinite;
+    }
+    .ov-col.parallel-collapsed .fork-chevron {
+      opacity: 1;
+      font-size: 0.8rem;
+    }
+    .ov-col.parallel-collapsed .ov-fork-banner:hover {
+      background: rgba(255,255,255,0.2);
+      border-style: solid;
+    }
+    .ov-col.parallel-collapsed .ov-fork-banner:hover .fork-chevron { background: white; }
+  </style>
+<script>
+const PORTRAIT_URIS = {
+  'agostinho': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzJkNWEyNyIvPiA8cGF0aCBkPSJNMCw5MCBRMzAsODIgNjAsODAgUTkwLDgyIDEyMCw5MCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWEyYSIvPiA8cmVjdCB4PSI2NiIgeT0iODIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiNjOGEwNjAiLz4gPGxpbmUgeDE9Ijc2IiB5MT0iODIiIHgyPSI3NiIgeTI9Ijk4IiBzdHJva2U9IiM4YTYwMzAiIHN0cm9rZS13aWR0aD0iMSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiM4YTUwMzAiLz4gPHBhdGggZD0iTTM2LDUyIFEzNywyNyA2MCwyNSBRODMsMjcgODQsNTIgUTgwLDQwIDYwLDM4IFE0MCw0MCAzNiw1MloiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUzIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1Mi4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDQ3IFE1Miw0NSA1Nyw0NyIgc3Ryb2tlPSIjMWEwYTAwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0NyBRNjgsNDUgNzQsNDciIHN0cm9rZT0iIzFhMGEwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYxIiByPSIxLjUiIGZpbGw9IiM2YTMwMTAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjggUTYwLDczIDY2LDY4IiBzdHJva2U9IiM5YTUwMzAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTM4LDcyIFE2MCw4MCA4Miw3MiBRODIsODQgNjAsODYgUTM4LDg0IDM4LDcyWiIgZmlsbD0iIzFhMGEwMCIgb3BhY2l0eT0iMC43Ii8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'anselmo': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzVhNGE4YSIvPiA8cGF0aCBkPSJNNDIsNTAgTDUxLDIyIEw2MCw4IEw2OSwyMiBMNzgsNTAgWiIgZmlsbD0iI2U4ZDA4MCIvPiA8cmVjdCB4PSI0MCIgeT0iNDgiIHdpZHRoPSI0MCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iI2U4ZDA4MCIvPiA8bGluZSB4MT0iNTciIHkxPSIxNiIgeDI9IjYzIiB5Mj0iMTYiIHN0cm9rZT0iI2M4YTAzMCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4gPGxpbmUgeDE9IjYwIiB5MT0iMTIiIHgyPSI2MCIgeTI9IjIwIiBzdHJva2U9IiNjOGEwMzAiIHN0cm9rZS13aWR0aD0iMS41Ii8+IDxwYXRoIGQ9Ik0wLDg4IFEzMCw4MCA2MCw3OCBROTAsODAgMTIwLDg4IEwxMjAsMTIwIEwwLDEyMCBaIiBmaWxsPSIjNWE0YThhIi8+IDxwYXRoIGQ9Ik00OCw3OCBMNTIsMTAyIEw2OCwxMDIgTDcyLDc4IFE2MCw3NCA0OCw3OFoiIGZpbGw9IiNlOGQwODAiIG9wYWNpdHk9IjAuNyIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI2MiIgcng9IjI0IiByeT0iMjYiIGZpbGw9IiNlMGMwOTAiLz4gPGVsbGlwc2UgY3g9IjM2IiBjeT0iNjIiIHJ4PSI4IiByeT0iMTQiIGZpbGw9IiNhMGEwYTAiLz4gPGVsbGlwc2UgY3g9Ijg0IiBjeT0iNjIiIHJ4PSI4IiByeT0iMTQiIGZpbGw9IiNhMGEwYTAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU3IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTciIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1NyIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTYuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1Ni4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDUxIFE1Miw0OSA1Nyw1MSIgc3Ryb2tlPSIjYTBhMGEwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw1MSBRNjgsNDkgNzQsNTEiIHN0cm9rZT0iI2EwYTBhMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjY1IiByPSIxLjUiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNzIgUTYwLDc2IDY2LDcyIiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'atanasio': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzRhMjA2MCIvPiA8cGF0aCBkPSJNNDIsNDggTDUwLDIwIEw2MCw2IEw3MCwyMCBMNzgsNDggWiIgZmlsbD0iI2M4YTA0MCIvPiA8cGF0aCBkPSJNNDAsNDYgTDgwLDQ2IEw4MCw1MiBMNDAsNTIgWiIgZmlsbD0iI2M4YTA0MCIvPiA8bGluZSB4MT0iNjAiIHkxPSI1MiIgeDI9IjYwIiB5Mj0iMjAiIHN0cm9rZT0iI2Y4ZTA2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIG9wYWNpdHk9IjAuNiIvPiA8bGluZSB4MT0iNTUiIHkxPSIxNCIgeDI9IjY1IiB5Mj0iMTQiIHN0cm9rZT0iI2Y4ZTA2MCIgc3Ryb2tlLXdpZHRoPSIyIi8+IDxsaW5lIHgxPSI2MCIgeTE9IjEwIiB4Mj0iNjAiIHkyPSIxOCIgc3Ryb2tlPSIjZjhlMDYwIiBzdHJva2Utd2lkdGg9IjIiLz4gPHBhdGggZD0iTTAsOTAgUTMwLDgyIDYwLDgwIFE5MCw4MiAxMjAsOTAgTDEyMCwxMjAgTDAsMTIwIFoiIGZpbGw9IiM0YTIwNjAiLz4gPHBhdGggZD0iTTQ4LDgwIEw1MiwxMDAgTDY4LDEwMCBMNzIsODAgUTYwLDc2IDQ4LDgwWiIgZmlsbD0iI2M4YTA0MCIgb3BhY2l0eT0iMC43Ii8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjYwIiByeD0iMjQiIHJ5PSIyNiIgZmlsbD0iIzdhNGEyYSIvPiA8cGF0aCBkPSJNMzYsNTYgUTM3LDM0IDYwLDMyIFE4MywzNCA4NCw1NiBRODAsNDQgNjAsNDIgUTQwLDQ0IDM2LDU2WiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU1IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTUiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NSIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU1IiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1NC4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjU0LjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDYsNDkgUTUyLDQ3IDU3LDQ5IiBzdHJva2U9IiMxYTBhMDAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDQ5IFE2OCw0NyA3NCw0OSIgc3Ryb2tlPSIjMWEwYTAwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjMiIHI9IjEuOCIgZmlsbD0iIzVhMzAxMCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01NCw3MCBRNjAsNzUgNjYsNzAiIHN0cm9rZT0iIzlhNTAzMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNDAsNzQgUTYwLDgwIDgwLDc0IFE4MCw4MiA2MCw4NCBRNDAsODIgNDAsNzRaIiBmaWxsPSIjMWEwYTAwIiBvcGFjaXR5PSIwLjUiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'bento': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzJhMmEyYSIvPiA8cGF0aCBkPSJNMjQsNTggQzI0LDI4IDQwLDE2IDYwLDE2IEM4MCwxNiA5NiwyOCA5Niw1OCBDOTAsNDIgNzgsMzQgNjAsMzQgQzQyLDM0IDMwLDQyIDI0LDU4WiIgZmlsbD0iIzFhMWExYSIvPiA8ZWxsaXBzZSBjeD0iMzAiIGN5PSI2OCIgcng9IjEyIiByeT0iMTgiIGZpbGw9IiMxYTFhMWEiLz4gPGVsbGlwc2UgY3g9IjkwIiBjeT0iNjgiIHJ4PSIxMiIgcnk9IjE4IiBmaWxsPSIjMWExYTFhIi8+IDxwYXRoIGQ9Ik0wLDg4IFEzMCw4MCA2MCw3OCBROTAsODAgMTIwLDg4IEwxMjAsMTIwIEwwLDEyMCBaIiBmaWxsPSIjMWExYTFhIi8+IDxsaW5lIHgxPSI1NyIgeTE9Ijg2IiB4Mj0iNjMiIHkyPSI4NiIgc3Ryb2tlPSIjYzhhMDQwIiBzdHJva2Utd2lkdGg9IjIuNSIvPiA8bGluZSB4MT0iNjAiIHkxPSI4MiIgeDI9IjYwIiB5Mj0iOTIiIHN0cm9rZT0iI2M4YTA0MCIgc3Ryb2tlLXdpZHRoPSIyLjUiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iNTgiIHJ4PSIyMiIgcnk9IjI1IiBmaWxsPSIjZTBjMDkwIi8+IDxwYXRoIGQ9Ik0zOCw1NCBRMzYsNDAgNDYsMzYgUTU0LDMyIDYwLDMyIFE2NiwzMiA3NCwzNiBRODQsNDAgODIsNTQgUTc4LDQ0IDYwLDQyIFE0Miw0NCAzOCw1NFoiIGZpbGw9IiM0YTMwMjAiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iMzYiIHJ4PSIxMiIgcnk9IjgiIGZpbGw9IiMyYTJhMmEiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NCIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU0IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTQiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1NCIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTMuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1My4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDQ4IFE1Miw0NiA1Nyw0OCIgc3Ryb2tlPSIjNGEzMDIwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0OCBRNjgsNDYgNzQsNDgiIHN0cm9rZT0iIzRhMzAyMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYyIiByPSIxLjUiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjggUTYwLDczIDY2LDY4IiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'billy_graham': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzRhMmExYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMmE0YSIvPiA8cGF0aCBkPSJNNTIsNzggUTYwLDc2IDY4LDc4IEw2Niw4OCBMNjAsODIgTDU0LDg4IFoiIGZpbGw9IiNmMGYwZjAiLz4gPHJlY3QgeD0iNTciIHk9IjgyIiB3aWR0aD0iNiIgaGVpZ2h0PSI4IiByeD0iMSIgZmlsbD0iIzhhMjAyMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNlMGMwYTAiLz4gPHBhdGggZD0iTTM2LDUyIFEzNywyNyA2MCwyNSBRODMsMjcgODQsNTIgUTgwLDM4IDY4LDM2IFE2NCwyOCA2MCwyOCBRNDAsMzggMzYsNTJaIiBmaWxsPSIjYjBhODk4Ii8+IDxwYXRoIGQ9Ik02MCwyOCBRNjAsMzYgNjgsMzYiIHN0cm9rZT0iI2QwYzhjMCIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjUzIiByPSIyLjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMi4yIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1Mi4zIiByPSIuOSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjUyLjMiIHI9Ii45IiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDYsNDcgUTUyLDQ1IDU3LDQ3IiBzdHJva2U9IiM4YTcwNjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDQ3IFE2OCw0NSA3NCw0NyIgc3Ryb2tlPSIjOGE3MDYwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjEiIHI9IjEuNSIgZmlsbD0iI2IwODA2MCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01Myw2OCBRNjAsNzMgNjcsNjgiIHN0cm9rZT0iI2MwNzg2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cmVjdCB4PSI3NCIgeT0iODIiIHdpZHRoPSI1IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iIzg4ODg4OCIgb3BhY2l0eT0iMC43Ii8+IDxlbGxpcHNlIGN4PSI3Ni41IiBjeT0iODIiIHJ4PSI0IiByeT0iNSIgZmlsbD0iIzY2NjY2NiIgb3BhY2l0eT0iMC43Ii8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'bonhoeffer': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzJhM2E1YSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWEyYSIvPiA8cGF0aCBkPSJNNTIsNzggUTYwLDc2IDY4LDc4IEw2Niw4OCBMNjAsODIgTDU0LDg4IFoiIGZpbGw9IiNmMGYwZjAiLz4gPHJlY3QgeD0iNTciIHk9IjgyIiB3aWR0aD0iNiIgaGVpZ2h0PSI4IiByeD0iMSIgZmlsbD0iIzNhM2E1YSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNlMGMwYTAiLz4gPHBhdGggZD0iTTM2LDUyIFEzNywyNyA2MCwyNSBRODMsMjcgODQsNTIgUTgwLDM4IDYyLDM3IEw2MCwzMCBMNTgsMzcgUTQwLDM4IDM2LDUyWiIgZmlsbD0iIzNhMjAxMCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU0IiByPSI5IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjM2EyMDEwIiBzdHJva2Utd2lkdGg9IjIiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1NCIgcj0iOSIgZmlsbD0id2hpdGUiIHN0cm9rZT0iIzNhMjAxMCIgc3Ryb2tlLXdpZHRoPSIyIi8+IDxsaW5lIHgxPSI2MSIgeTE9IjU0IiB4Mj0iNTkiIHkyPSI1NCIgc3Ryb2tlPSIjM2EyMDEwIiBzdHJva2Utd2lkdGg9IjIiLz4gPGxpbmUgeDE9IjQzIiB5MT0iNTQiIHgyPSIzOCIgeTI9IjUyIiBzdHJva2U9IiMzYTIwMTAiIHN0cm9rZS13aWR0aD0iMiIvPiA8bGluZSB4MT0iNzciIHkxPSI1NCIgeDI9IjgyIiB5Mj0iNTIiIHN0cm9rZT0iIzNhMjAxMCIgc3Ryb2tlLXdpZHRoPSIyIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTQiIHI9IjIuNSIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU0IiByPSIyLjUiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjUzIiByPSIxIiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OC44IiBjeT0iNTMiIHI9IjEiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00NCw0NCBRNTIsNDIgNTcsNDQiIHN0cm9rZT0iIzNhMjAxMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNjMsNDQgUTY4LDQyIDc2LDQ0IiBzdHJva2U9IiMzYTIwMTAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2NCIgcj0iMS41IiBmaWxsPSIjYjA4MDYwIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTU0LDcwIFE2MCw3NCA2Niw3MCIgc3Ryb2tlPSIjYzA3ODYwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'calvino': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzFhMmE0YSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSIzNiIgcng9IjMwIiByeT0iNyIgZmlsbD0iIzFhMWExYSIvPiA8cGF0aCBkPSJNMzgsMzYgTDQyLDE4IEw3OCwxOCBMODIsMzYgWiIgZmlsbD0iIzFhMWExYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWExYSIvPiA8cGF0aCBkPSJNNDgsNzggUTYwLDc2IDcyLDc4IEw3MCw4NiBRNjAsODIgNTAsODYgWiIgZmlsbD0iI2YwZjBmMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI2MCIgcng9IjIzIiByeT0iMjYiIGZpbGw9IiNkYWIwODAiLz4gPHBhdGggZD0iTTQ0LDc0IFE2MCw4MCA3Niw3NCBRNzYsODYgNjAsOTAgUTQ0LDg2IDQ0LDc0WiIgZmlsbD0iIzJhMWEwMCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU1IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTUiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NSIgcj0iMi4yIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTUiIHI9IjIuMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTQuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1NC4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDQ5IFE1Miw0NyA1Nyw0OSIgc3Ryb2tlPSIjMmExYTAwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0OSBRNjgsNDcgNzQsNDkiIHN0cm9rZT0iIzJhMWEwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYzIiByPSIxLjUiIGZpbGw9IiNhMDc4NTAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjkgUTYwLDczIDY2LDY5IiBzdHJva2U9IiNiMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'carlos_magno': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzhhMjAyMCIvPiA8cGF0aCBkPSJNMzQsNDYgTDM0LDMwIEw0NCwzOCBMNjAsMjIgTDc2LDM4IEw4NiwzMCBMODYsNDYgWiIgZmlsbD0iI2Y4ZDAzMCIgc3Ryb2tlPSIjYzhhMDEwIiBzdHJva2Utd2lkdGg9IjEiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSIyOCIgcj0iMyIgZmlsbD0iI2NjMjAyMCIvPiA8Y2lyY2xlIGN4PSI0NCIgY3k9IjM4IiByPSIyLjUiIGZpbGw9IiMyMDIwY2MiLz4gPGNpcmNsZSBjeD0iNzYiIGN5PSIzOCIgcj0iMi41IiBmaWxsPSIjMjBjYzIwIi8+IDxwYXRoIGQ9Ik0wLDg4IFEzMCw4MCA2MCw3OCBROTAsODAgMTIwLDg4IEwxMjAsMTIwIEwwLDEyMCBaIiBmaWxsPSIjOGEyMDIwIi8+IDxwYXRoIGQ9Ik0zMCw4MCBRNjAsNzYgOTAsODAgTDkwLDg2IFE2MCw4MiAzMCw4NiBaIiBmaWxsPSIjYzhjOGM4IiBvcGFjaXR5PSIwLjQiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iNjAiIHJ4PSIyNCIgcnk9IjI2IiBmaWxsPSIjZDhiMDgwIi8+IDxwYXRoIGQ9Ik0zNiw1NiBRMzcsMzIgNjAsMzAgUTgzLDMyIDg0LDU2IFE4MCw0MiA2MCw0MCBRNDAsNDIgMzYsNTZaIiBmaWxsPSIjOGE2MDQwIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTUiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1NSIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU1IiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTUiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjU0LjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OC44IiBjeT0iNTQuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00Niw0OSBRNTIsNDcgNTcsNDkiIHN0cm9rZT0iIzZhNDAyMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNjMsNDkgUTY4LDQ3IDc0LDQ5IiBzdHJva2U9IiM2YTQwMjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MyIgcj0iMS41IiBmaWxsPSIjYjA4MDYwIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTU0LDcwIFE2MCw3NCA2Niw3MCIgc3Ryb2tlPSIjYzA3ODYwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik0zOCw3NCBRNjAsODIgODIsNzQgUTgyLDg0IDYwLDg2IFEzOCw4NCAzOCw3NFoiIGZpbGw9IiM4YTYwNDAiIG9wYWNpdHk9IjAuOCIvPiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'cirilo': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzFhM2E3YSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI3OCIgcng9IjMyIiByeT0iNDAiIGZpbGw9IiM4ODg4ODgiLz4gPHBhdGggZD0iTTAsODggUTMwLDgwIDYwLDc4IFE5MCw4MCAxMjAsODggTDEyMCwxMjAgTDAsMTIwIFoiIGZpbGw9IiMxYTNhN2EiLz4gPHBhdGggZD0iTTQ4LDc4IEw1Miw5OCBMNjgsOTggTDcyLDc4IFE2MCw3NCA0OCw3OFoiIGZpbGw9IiNjOGEwNDAiIG9wYWNpdHk9IjAuOCIvPiA8bGluZSB4MT0iNTciIHkxPSI4NiIgeDI9IjYzIiB5Mj0iODYiIHN0cm9rZT0iI2Y4ZTA2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4gPGxpbmUgeDE9IjYwIiB5MT0iODMiIHgyPSI2MCIgeTI9Ijg5IiBzdHJva2U9IiNmOGUwNjAiIHN0cm9rZS13aWR0aD0iMS41Ii8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjU2IiByeD0iMjQiIHJ5PSIyNyIgZmlsbD0iI2M4YTA3MCIvPiA8cGF0aCBkPSJNMzYsNTAgUTM3LDI1IDYwLDIzIFE4MywyNSA4NCw1MCBRODAsMzYgNjAsMzQgUTQwLDM2IDM2LDUwWiIgZmlsbD0iIzg4ODg4OCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjUxIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTEiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MSIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUxIiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1MC4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjUwLjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDYsNDUgUTUyLDQzIDU3LDQ1IiBzdHJva2U9IiM4ODg4ODgiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDQ1IFE2OCw0MyA3NCw0NSIgc3Ryb2tlPSIjODg4ODg4IiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNTkiIHI9IjEuNSIgZmlsbD0iI2EwNzg1MCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01NCw2NiBRNjAsNzEgNjYsNjYiIHN0cm9rZT0iI2IwNzg1MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNMzYsNjggUTYwLDc2IDg0LDY4IFE4NCwxMDAgNjAsMTA2IFEzNiwxMDAgMzYsNjhaIiBmaWxsPSIjODg4ODg4Ii8+IDxwYXRoIGQ9Ik00NCw3NCBRNjAsODAgNzYsNzQiIHN0cm9rZT0iI2EwYTBhMCIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTQwLDg0IFE2MCw5MCA4MCw4NCIgc3Ryb2tlPSIjYTBhMGEwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuNSIvPiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'cristo': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iI2M4YTAzMCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjQ0IiByPSIzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjhlMDQwIiBzdHJva2Utd2lkdGg9IjUiIG9wYWNpdHk9IjAuOSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI3NiIgcng9IjMwIiByeT0iMzgiIGZpbGw9IiM2YjNhMWYiLz4gPHBhdGggZD0iTTAsOTIgUTMwLDg0IDYwLDgyIFE5MCw4NCAxMjAsOTIgTDEyMCwxMjAgTDAsMTIwIFoiIGZpbGw9IiNlOGU0ZDgiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iNTgiIHJ4PSIyNCIgcnk9IjI3IiBmaWxsPSIjZThjMDkwIi8+IDxwYXRoIGQ9Ik0zNiw1MiBRMzcsMjcgNjAsMjUgUTgzLDI3IDg0LDUyIFE3NiwzOCA2MCwzNiBRNDQsMzggMzYsNTJaIiBmaWxsPSIjNmIzYTFmIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjUzIiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTMiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjUyLjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OC44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00Niw0NyBRNTIsNDUgNTcsNDciIHN0cm9rZT0iIzVhMmMxMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNjMsNDcgUTY4LDQ1IDc0LDQ3IiBzdHJva2U9IiM1YTJjMTAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MSIgcj0iMS41IiBmaWxsPSIjYjA4MDYwIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTU0LDY3IFE2MCw3MiA2Niw2NyIgc3Ryb2tlPSIjYzA3ODYwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik0zNiw3MCBRNjAsNzggODQsNzAgUTg0LDk2IDYwLDEwMCBRMzYsOTYgMzYsNzBaIiBmaWxsPSIjNmIzYTFmIi8+IDxwYXRoIGQ9Ik00Niw3MiBRNjAsNzYgNzQsNzIiIHN0cm9rZT0iIzhhNWEyYSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjUiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'cs_lewis': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzVhNGEyYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzdhNWEzMCIvPiA8cGF0aCBkPSJNNDUsNzggTDQyLDkyIEw2MCw4NCBMNzgsOTIgTDc1LDc4IFE2MCw3NiA0NSw3OFoiIGZpbGw9IiM4YTZhNDAiLz4gPHBhdGggZD0iTTU0LDc4IFE2MCw3NiA2Niw3OCBMNjQsODYgUTYwLDgyIDU2LDg2IFoiIGZpbGw9IiNmMGYwZjAiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iNjAiIHJ4PSIyNiIgcnk9IjI4IiBmaWxsPSIjZTBjMGEwIi8+IDxwYXRoIGQ9Ik0zNCw1NCBRMzQsMzAgNjAsMjggUTg2LDMwIDg2LDU0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2YTRhMjAiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjM2IiByeD0iMTQiIHJ5PSIxMCIgZmlsbD0iIzVhNGEyYSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU2IiByPSI0IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU2IiByPSI0IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU2IiByPSIyLjUiIGZpbGw9IiMxYTJhNGEiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1NiIgcj0iMi41IiBmaWxsPSIjMWEyYTRhIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1NSIgcj0iMSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjU1IiByPSIxIiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDQsNDkgUTUyLDQ2IDU3LDQ5IiBzdHJva2U9IiM2YTRhMjAiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0OSBRNjgsNDYgNzYsNDkiIHN0cm9rZT0iIzZhNGEyMCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2NCIgcj0iMiIgZmlsbD0iI2IwODA2MCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01Miw3MiBRNjAsNzkgNjgsNzIiIHN0cm9rZT0iI2MwNzg2MCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTY0LDcyIFE3NCw3MCA3OCw2NiIgc3Ryb2tlPSIjNWEzMDEwIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8ZWxsaXBzZSBjeD0iNzkiIGN5PSI2NSIgcng9IjUiIHJ5PSI3IiBmaWxsPSJub25lIiBzdHJva2U9IiM1YTMwMTAiIHN0cm9rZS13aWR0aD0iMiIvPiA8Y2lyY2xlIGN4PSI3OSIgY3k9IjYzIiByPSIzIiBmaWxsPSIjM2ExYTAwIiBvcGFjaXR5PSIwLjUiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'focio': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzFhNDA2MCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI3NiIgcng9IjMyIiByeT0iNDIiIGZpbGw9IiM5MDkwOTAiLz4gPHBhdGggZD0iTTAsODggUTMwLDgwIDYwLDc4IFE5MCw4MCAxMjAsODggTDEyMCwxMjAgTDAsMTIwIFoiIGZpbGw9IiMxYTQwNjAiLz4gPGxpbmUgeDE9IjU3IiB5MT0iODQiIHgyPSI2MyIgeTI9Ijg0IiBzdHJva2U9IiNmOGQwMzAiIHN0cm9rZS13aWR0aD0iMiIvPiA8bGluZSB4MT0iNjAiIHkxPSI4MCIgeDI9IjYwIiB5Mj0iOTAiIHN0cm9rZT0iI2Y4ZDAzMCIgc3Ryb2tlLXdpZHRoPSIyIi8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjU2IiByeD0iMjQiIHJ5PSIyNyIgZmlsbD0iI2M4YTA3MCIvPiA8cGF0aCBkPSJNMzYsNTAgUTM3LDI1IDYwLDIzIFE4MywyNSA4NCw1MCBRODAsMzYgNjAsMzQgUTQwLDM2IDM2LDUwWiIgZmlsbD0iIzkwOTA5MCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjUxIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTEiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MSIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUxIiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1MC4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjUwLjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDYsNDUgUTUyLDQzIDU3LDQ1IiBzdHJva2U9IiM5MDkwOTAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDQ1IFE2OCw0MyA3NCw0NSIgc3Ryb2tlPSIjOTA5MDkwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNTkiIHI9IjEuNSIgZmlsbD0iI2EwNzg1MCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01NCw2NiBRNjAsNzAgNjYsNjYiIHN0cm9rZT0iI2IwNzg1MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNMzYsNjggUTYwLDc2IDg0LDY4IFE4NCwxMDQgNjAsMTA4IFEzNiwxMDQgMzYsNjhaIiBmaWxsPSIjOTA5MDkwIi8+IDxwYXRoIGQ9Ik00NCw3NiBRNjAsODIgNzYsNzYiIHN0cm9rZT0iI2IwYjBiMCIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTQwLDg4IFE2MCw5NCA4MCw4OCIgc3Ryb2tlPSIjYjBiMGIwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuNSIvPiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'francisco': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzdhNTAyMCIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzhhNWEyMCIvPiA8cGF0aCBkPSJNMzYsODQgUTYwLDgyIDg0LDg0IiBzdHJva2U9IiNlOGQwYTAiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjYwIiByeD0iMjQiIHJ5PSIyNyIgZmlsbD0iI2UwYzA5MCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjQwIiByPSIyNCIgZmlsbD0iIzZhNGEyMCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjM4IiByPSIxMyIgZmlsbD0iIzdhNTAyMCIvPiA8ZWxsaXBzZSBjeD0iMzYiIGN5PSI2MiIgcng9IjUiIHJ5PSI3IiBmaWxsPSIjZTBjMDkwIi8+IDxlbGxpcHNlIGN4PSI4NCIgY3k9IjYyIiByeD0iNSIgcnk9IjciIGZpbGw9IiNlMGMwOTAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU3IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTciIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1NyIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTYuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1Ni4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDUxIFE1Miw0OSA1Nyw1MSIgc3Ryb2tlPSIjNWEzMDEwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw1MSBRNjgsNDkgNzQsNTEiIHN0cm9rZT0iIzVhMzAxMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjY1IiByPSIxLjUiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTMsNzIgUTYwLDc4IDY3LDcyIiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGVsbGlwc2UgY3g9Ijg0IiBjeT0iODAiIHJ4PSI3IiByeT0iNSIgZmlsbD0iI2QwYzhiOCIvPiA8Y2lyY2xlIGN4PSI4OCIgY3k9Ijc3IiByPSIzIiBmaWxsPSIjZDBjOGI4Ii8+IDxwYXRoIGQ9Ik05MCw3NyBMOTQsNzUiIHN0cm9rZT0iI2MwYjhhOCIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+IDxjaXJjbGUgY3g9Ijg5IiBjeT0iNzYiIHI9IjEiIGZpbGw9IiMxYTBhMDAiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'gregorio': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzhhNzAzMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSIzNiIgcng9IjI0IiByeT0iNyIgZmlsbD0iI2Y4ZTA0MCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSIzMCIgcng9IjIwIiByeT0iNiIgZmlsbD0iI2Y4ZTA0MCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSIyNSIgcng9IjE2IiByeT0iNSIgZmlsbD0iI2Y4ZTA0MCIvPiA8cmVjdCB4PSIzNiIgeT0iMzYiIHdpZHRoPSI0OCIgaGVpZ2h0PSI3IiByeD0iMiIgZmlsbD0iI2Y4ZTA0MCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjE4IiByPSI1IiBmaWxsPSIjZjhlMDQwIi8+IDxsaW5lIHgxPSI1NyIgeTE9IjE4IiB4Mj0iNjMiIHkyPSIxOCIgc3Ryb2tlPSIjYzhhMDMwIiBzdHJva2Utd2lkdGg9IjEuNSIvPiA8bGluZSB4MT0iNjAiIHkxPSIxNCIgeDI9IjYwIiB5Mj0iMjIiIHN0cm9rZT0iI2M4YTAzMCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4gPGxpbmUgeDE9IjM2IiB5MT0iMzAiIHgyPSI4NCIgeTI9IjMwIiBzdHJva2U9IiNjOGEwMzAiIHN0cm9rZS13aWR0aD0iMC44IiBvcGFjaXR5PSIwLjUiLz4gPGxpbmUgeDE9IjQwIiB5MT0iMjUiIHgyPSI4MCIgeTI9IjI1IiBzdHJva2U9IiNjOGEwMzAiIHN0cm9rZS13aWR0aD0iMC44IiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTAsODggUTMwLDgwIDYwLDc4IFE5MCw4MCAxMjAsODggTDEyMCwxMjAgTDAsMTIwIFoiIGZpbGw9IiNmMGYwZjAiLz4gPHBhdGggZD0iTTQ4LDc4IEw1MiwxMDIgTDY4LDEwMiBMNzIsNzggUTYwLDc0IDQ4LDc4WiIgZmlsbD0iI2Y4ZDA0MCIgb3BhY2l0eT0iMC43Ii8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjYwIiByeD0iMjQiIHJ5PSIyNiIgZmlsbD0iI2UwYzA5MCIvPiA8cGF0aCBkPSJNMzYsNTggUTM4LDQ0IDYwLDQyIFE4Miw0NCA4NCw1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDBkMGQwIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU2IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTYiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NiIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU2IiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1NS4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjU1LjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDYsNTAgUTUyLDQ4IDU3LDUwIiBzdHJva2U9IiNhYWFhYWEiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDUwIFE2OCw0OCA3NCw1MCIgc3Ryb2tlPSIjYWFhYWFhIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjQiIHI9IjEuNSIgZmlsbD0iI2IwODA2MCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01NCw3MSBRNjAsNzUgNjYsNzEiIHN0cm9rZT0iI2MwNzg2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNMzgsNzQgUTYwLDgyIDgyLDc0IFE4Miw4NCA2MCw4NiBRMzgsODQgMzgsNzRaIiBmaWxsPSIjZDBkMGQwIi8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'jan_hus': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzhhMmExYSIvPiA8cGF0aCBkPSJNMjAsMTEwIFEzMCw5MCA0MCwxMDAgUTQ1LDgwIDU1LDk1IFE2MCw3OCA2NSw5NSBRNzUsODAgODAsMTAwIFE5MCw5MCAxMDAsMTEwWiIgZmlsbD0iI2Y4NzAyMCIgb3BhY2l0eT0iMC43Ii8+IDxwYXRoIGQ9Ik0zMCwxMTIgUTM4LDk2IDQ2LDEwNCBRNTAsODggNTgsMTAwIFE2Miw4NCA2NiwxMDAgUTc0LDg4IDgyLDEwNCBROTAsOTYgOTgsMTEyWiIgZmlsbD0iI2Y4YzAyMCIgb3BhY2l0eT0iMC42Ii8+IDxwYXRoIGQ9Ik0wLDg4IFEzMCw4MCA2MCw3OCBROTAsODAgMTIwLDg4IEwxMjAsMTIwIEwwLDEyMCBaIiBmaWxsPSIjM2EzYTNhIi8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjU4IiByeD0iMjQiIHJ5PSIyNyIgZmlsbD0iI2UwYzA5MCIvPiA8cGF0aCBkPSJNMzYsNTIgUTM3LDI3IDYwLDI1IFE4MywyNyA4NCw1MiBRODAsMzggNjAsMzYgUTQwLDM4IDM2LDUyWiIgZmlsbD0iIzNhMWEwMCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjUzIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTMiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MyIgcj0iMi4yIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTMiIHI9IjIuMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1Mi4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDQ2IFE1Miw0NCA1Nyw0NyIgc3Ryb2tlPSIjM2ExYTAwIiBzdHJva2Utd2lkdGg9IjEuOCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0NyBRNjgsNDQgNzQsNDYiIHN0cm9rZT0iIzNhMWEwMCIgc3Ryb2tlLXdpZHRoPSIxLjgiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYxIiByPSIxLjUiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjggUTYwLDcwIDY2LDY4IiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'joao': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzhiMjAyMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI3NiIgcng9IjMwIiByeT0iMzgiIGZpbGw9IiM0YTJjMTAiLz4gPHBhdGggZD0iTTAsOTIgUTMwLDg0IDYwLDgyIFE5MCw4NCAxMjAsOTIgTDEyMCwxMjAgTDAsMTIwIFoiIGZpbGw9IiM4YjIwMjAiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iNTgiIHJ4PSIyNCIgcnk9IjI3IiBmaWxsPSIjZThjMDkwIi8+IDxwYXRoIGQ9Ik0zNiw1MiBRMzcsMjcgNjAsMjUgUTgzLDI3IDg0LDUyIFE3NiwzOCA2MCwzNiBRNDQsMzggMzYsNTJaIiBmaWxsPSIjNGEyYzEwIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjUzIiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTMiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjUyLjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OC44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00Niw0NyBRNTIsNDUgNTcsNDciIHN0cm9rZT0iIzNhMWEwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNjMsNDcgUTY4LDQ1IDc0LDQ3IiBzdHJva2U9IiMzYTFhMDAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MSIgcj0iMS41IiBmaWxsPSIjYjA4MDYwIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTU0LDY3IFE2MCw3MiA2Niw2NyIgc3Ryb2tlPSIjYzA3ODYwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDx0ZXh0IHg9IjgyIiB5PSI0MCIgZm9udC1zaXplPSIxNiIgZmlsbD0iI2Y4ZDAzMCIgb3BhY2l0eT0iMC44Ij7wn6aFPC90ZXh0PiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'john_knox': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzJhMmEyYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWExYSIvPiA8cmVjdCB4PSI1MyIgeT0iNzgiIHdpZHRoPSIxNCIgaGVpZ2h0PSI4IiByeD0iMSIgZmlsbD0iI2YwZjBmMCIvPiA8cmVjdCB4PSI1MyIgeT0iODAiIHdpZHRoPSI2IiBoZWlnaHQ9IjEwIiByeD0iMSIgZmlsbD0iI2YwZjBmMCIvPiA8cmVjdCB4PSI2MSIgeT0iODAiIHdpZHRoPSI2IiBoZWlnaHQ9IjEwIiByeD0iMSIgZmlsbD0iI2YwZjBmMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNlMGMwYTAiLz4gPHBhdGggZD0iTTM2LDUyIFEzNywyNyA2MCwyNSBRODMsMjcgODQsNTIgUTgwLDM4IDYwLDM2IFE0MCwzOCAzNiw1MloiIGZpbGw9IiM5MDkwOTAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUzIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjIuMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUzIiByPSIyLjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjUyLjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OC44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00Niw0NiBRNTIsNDQgNTcsNDciIHN0cm9rZT0iIzcwNzA3MCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDQ3IFE2OCw0NCA3NCw0NiIgc3Ryb2tlPSIjNzA3MDcwIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYxIiByPSIxLjUiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjggUTYwLDcwIDY2LDY4IiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTM2LDcwIFE2MCw3OCA4NCw3MCBRODQsOTYgNjAsMTAwIFEzNiw5NiAzNiw3MFoiIGZpbGw9IiM5MDkwOTAiLz4gPHBhdGggZD0iTTQ0LDc2IFE2MCw4MiA3Niw3NiIgc3Ryb2tlPSIjYjBiMGIwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNDAsODYgUTYwLDkyIDgwLDg2IiBzdHJva2U9IiNiMGIwYjAiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iMC41Ii8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'jonathan_edwards': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzRhM2EyYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWExYSIvPiA8cmVjdCB4PSI1MiIgeT0iNzgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxMCIgcng9IjIiIGZpbGw9IiNmMGYwZjAiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iNDAiIHJ4PSIzMCIgcnk9IjIyIiBmaWxsPSIjZTBlMGUwIi8+IDxlbGxpcHNlIGN4PSIzMCIgY3k9IjYwIiByeD0iMTAiIHJ5PSIxOCIgZmlsbD0iI2UwZTBlMCIvPiA8ZWxsaXBzZSBjeD0iOTAiIGN5PSI2MCIgcng9IjEwIiByeT0iMTgiIGZpbGw9IiNlMGUwZTAiLz4gPHBhdGggZD0iTTQ4LDMyIFE1NCwyNiA2MCwyNCBRNjYsMjYgNzIsMzIiIHN0cm9rZT0iI2QwZDBkMCIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+IDxwYXRoIGQ9Ik0zNCw1MCBRMzIsNTYgMzQsNjIiIHN0cm9rZT0iI2QwZDBkMCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+IDxwYXRoIGQ9Ik04Niw1MCBRODgsNTYgODYsNjIiIHN0cm9rZT0iI2QwZDBkMCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjYyIiByeD0iMjIiIHJ5PSIyNCIgZmlsbD0iI2UwYzA5MCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU4IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTgiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1OCIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU4IiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1Ny4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjU3LjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDYsNTIgUTUyLDUwIDU3LDUyIiBzdHJva2U9IiM4YTYwNDAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDUyIFE2OCw1MCA3NCw1MiIgc3Ryb2tlPSIjOGE2MDQwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjYiIHI9IjEuNSIgZmlsbD0iI2IwODA2MCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01NCw3MyBRNjAsNzcgNjYsNzMiIHN0cm9rZT0iI2MwNzg2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'karl_barth': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzNhM2EzYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWExYSIvPiA8cGF0aCBkPSJNNTIsNzggUTYwLDc2IDY4LDc4IEw2Niw4OCBMNjAsODIgTDU0LDg4IFoiIGZpbGw9IiNmMGYwZjAiLz4gPHJlY3QgeD0iNTciIHk9IjgyIiB3aWR0aD0iNiIgaGVpZ2h0PSI4IiByeD0iMSIgZmlsbD0iIzRhNGE0YSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNlMGMwYTAiLz4gPHBhdGggZD0iTTM2LDU0IFEzNiwzMCA2MCwyOCBRODQsMzAgODQsNTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2EwYTBhMCIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTQiIHI9IjkiIGZpbGw9IndoaXRlIiBzdHJva2U9IiMzYTIwMTAiIHN0cm9rZS13aWR0aD0iMiIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU0IiByPSI5IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjM2EyMDEwIiBzdHJva2Utd2lkdGg9IjIiLz4gPGxpbmUgeDE9IjYxIiB5MT0iNTQiIHgyPSI1OSIgeTI9IjU0IiBzdHJva2U9IiMzYTIwMTAiIHN0cm9rZS13aWR0aD0iMiIvPiA8bGluZSB4MT0iNDMiIHkxPSI1NCIgeDI9IjM4IiB5Mj0iNTIiIHN0cm9rZT0iIzNhMjAxMCIgc3Ryb2tlLXdpZHRoPSIyIi8+IDxsaW5lIHgxPSI3NyIgeTE9IjU0IiB4Mj0iODIiIHkyPSI1MiIgc3Ryb2tlPSIjM2EyMDEwIiBzdHJva2Utd2lkdGg9IjIiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NCIgcj0iMi41IiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTQiIHI9IjIuNSIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTMiIHI9IjEiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1MyIgcj0iMSIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ0LDQ0IFE1Miw0MiA1Nyw0NCIgc3Ryb2tlPSIjOTA5MDkwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0NCBRNjgsNDIgNzYsNDQiIHN0cm9rZT0iIzkwOTA5MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjY0IiByPSIxLjUiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNzAgUTYwLDc0IDY2LDcwIiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'lutero': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzNhNWEyYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWExYSIvPiA8cGF0aCBkPSJNNDgsNzggUTYwLDc2IDcyLDc4IEw3MCw4NCBRNjAsODAgNTAsODQgWiIgZmlsbD0iI2YwZjBmMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI2MCIgcng9IjI1IiByeT0iMjciIGZpbGw9IiNkYWIwODAiLz4gPHBhdGggZD0iTTM1LDU0IFEzNiwyOCA2MCwyNiBRODQsMjggODUsNTQgUTgwLDQwIDYwLDM4IFE0MCw0MCAzNSw1NFoiIGZpbGw9IiMzYTFhMDAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NSIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU1IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTUiIHI9IjIuMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU1IiByPSIyLjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjU0LjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OC44IiBjeT0iNTQuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00NSw0OSBRNTIsNDcgNTcsNDkiIHN0cm9rZT0iIzNhMWEwMCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDQ5IFE2OCw0NyA3NSw0OSIgc3Ryb2tlPSIjM2ExYTAwIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYzIiByPSIxLjgiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTMsNzAgUTYwLDc0IDY3LDcwIiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTQyLDczIFE2MCw4MCA3OCw3MyBRNzgsODIgNjAsODQgUTQyLDgyIDQyLDczWiIgZmlsbD0iIzNhMWEwMCIgb3BhY2l0eT0iMC40Ii8+IDxyZWN0IHg9IjI4IiB5PSI4NiIgd2lkdGg9IjEwIiBoZWlnaHQ9IjE0IiByeD0iMiIgZmlsbD0iI2U4ZDhhMCIgb3BhY2l0eT0iMC43Ii8+IDxsaW5lIHgxPSIzMCIgeTE9IjkwIiB4Mj0iMzYiIHkyPSI5MCIgc3Ryb2tlPSIjYTA5MDYwIiBzdHJva2Utd2lkdGg9IjAuOCIgb3BhY2l0eT0iMC44Ii8+IDxsaW5lIHgxPSIzMCIgeTE9IjkzIiB4Mj0iMzYiIHkyPSI5MyIgc3Ryb2tlPSIjYTA5MDYwIiBzdHJva2Utd2lkdGg9IjAuOCIgb3BhY2l0eT0iMC44Ii8+IDxsaW5lIHgxPSIzMCIgeTE9Ijk2IiB4Mj0iMzYiIHkyPSI5NiIgc3Ryb2tlPSIjYTA5MDYwIiBzdHJva2Utd2lkdGg9IjAuOCIgb3BhY2l0eT0iMC44Ii8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'paulo': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzdhNDAyMCIvPiA8cGF0aCBkPSJNMCw5MCBRMzAsODIgNjAsODAgUTkwLDgyIDEyMCw5MCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iI2EwNjAzMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNkNGEwNzAiLz4gPGVsbGlwc2UgY3g9IjYwIiBjeT0iMzgiIHJ4PSIyMCIgcnk9IjEyIiBmaWxsPSIjYzg5MDYwIiBvcGFjaXR5PSIwLjQiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUzIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1Mi4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDQ2IFE1Miw0NCA1Nyw0NiIgc3Ryb2tlPSIjM2ExYTAwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0NiBRNjgsNDQgNzQsNDYiIHN0cm9rZT0iIzNhMWEwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYxIiByPSIxLjUiIGZpbGw9IiNhMDc4NTAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjggUTYwLDcyIDY2LDY4IiBzdHJva2U9IiNiMDcwNTAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTM2LDcwIFE2MCw3OCA4NCw3MCBRODQsOTggNjAsMTAyIFEzNiw5OCAzNiw3MFoiIGZpbGw9IiMxYTBhMDAiLz4gPHBhdGggZD0iTTQ0LDc0IFE2MCw4MCA3Niw3NCIgc3Ryb2tlPSIjMmExYTBhIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuNiIvPiA8cGF0aCBkPSJNNDAsODIgUTYwLDg4IDgwLDgyIiBzdHJva2U9IiMyYTFhMGEiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iMC42Ii8+IDxyZWN0IHg9IjcyIiB5PSI4NCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0iI2U4ZDhhMCIgb3BhY2l0eT0iMC42Ii8+IDxsaW5lIHgxPSI3NCIgeTE9Ijg4IiB4Mj0iODIiIHkyPSI4OCIgc3Ryb2tlPSIjYTA5MDYwIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuOCIvPiA8bGluZSB4MT0iNzQiIHkxPSI5MiIgeDI9IjgyIiB5Mj0iOTIiIHN0cm9rZT0iI2EwOTA2MCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjgiLz4gPC9nPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+IDwvc3ZnPg==',
+  'pedro': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzNhNWE4YSIvPiA8cGF0aCBkPSJNMCw5MCBRMzAsODIgNjAsODAgUTkwLDgyIDEyMCw5MCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzNhNWE4YSIvPiA8cGF0aCBkPSJNMCw5MiBRMzAsODYgNjAsODQgUTkwLDg2IDEyMCw5MiBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iI2M4YTA0MCIgb3BhY2l0eT0iMC4zIi8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjU4IiByeD0iMjQiIHJ5PSIyNyIgZmlsbD0iI2UwYzA5MCIvPiA8Y2lyY2xlIGN4PSI0MCIgY3k9IjM4IiByPSIxMiIgZmlsbD0iI2Q4ZDhkOCIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjMwIiByPSIxMSIgZmlsbD0iI2Q4ZDhkOCIvPiA8Y2lyY2xlIGN4PSI2NCIgY3k9IjI4IiByPSIxMSIgZmlsbD0iI2Q4ZDhkOCIvPiA8Y2lyY2xlIGN4PSI3NiIgY3k9IjMyIiByPSIxMSIgZmlsbD0iI2Q4ZDhkOCIvPiA8Y2lyY2xlIGN4PSI4NCIgY3k9IjQyIiByPSIxMCIgZmlsbD0iI2Q4ZDhkOCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNlMGMwOTAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUzIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjIiIGZpbGw9IiMxYTJhNGEiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMiIgZmlsbD0iIzFhMmE0YSIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1Mi4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDQ3IFE1Miw0NSA1Nyw0NyIgc3Ryb2tlPSIjOGE4MDgwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0NyBRNjgsNDUgNzQsNDciIHN0cm9rZT0iIzhhODA4MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYxIiByPSIxLjUiIGZpbGw9IiNiMDgwNjAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjggUTYwLDcyIDY2LDY4IiBzdHJva2U9IiNjMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTM2LDcwIFE2MCw3OCA4NCw3MCBRODQsOTYgNjAsMTAwIFEzNiw5NiAzNiw3MFoiIGZpbGw9IiNkOGQ4ZDgiLz4gPGNpcmNsZSBjeD0iNDAiIGN5PSI5NiIgcj0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjhkMDMwIiBzdHJva2Utd2lkdGg9IjIiLz4gPGxpbmUgeDE9IjQ2IiB5MT0iOTYiIHgyPSI1NiIgeTI9Ijk2IiBzdHJva2U9IiNmOGQwMzAiIHN0cm9rZS13aWR0aD0iMiIvPiA8bGluZSB4MT0iNTAiIHkxPSI5NiIgeDI9IjUwIiB5Mj0iMTAwIiBzdHJva2U9IiNmOGQwMzAiIHN0cm9rZS13aWR0aD0iMiIvPiA8bGluZSB4MT0iNTQiIHkxPSI5NiIgeDI9IjU0IiB5Mj0iMTAwIiBzdHJva2U9IiNmOGQwMzAiIHN0cm9rZS13aWR0aD0iMiIvPiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'spurgeon': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzZhM2ExYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMWExYSIvPiA8cGF0aCBkPSJNNTAsNzggUTYwLDc2IDcwLDc4IEw2OCw4NiBRNjAsODIgNTIsODYgWiIgZmlsbD0iI2YwZjBmMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI2MCIgcng9IjI2IiByeT0iMjgiIGZpbGw9IiNlMGMwYTAiLz4gPHBhdGggZD0iTTM0LDU0IFEzNSwyOCA2MCwyNiBRODUsMjggODYsNTQgUTgwLDQwIDYwLDM4IFE0MCw0MCAzNCw1NFoiIGZpbGw9IiMzYTFhMDAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NSIgcj0iNCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1NSIgcj0iNCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NSIgcj0iMi41IiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTUiIHI9IjIuNSIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTQiIHI9IjEiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1NCIgcj0iMSIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ1LDQ5IFE1Miw0NyA1Nyw0OSIgc3Ryb2tlPSIjM2ExYTAwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0OSBRNjgsNDcgNzUsNDkiIHN0cm9rZT0iIzNhMWEwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYzIiByPSIyIiBmaWxsPSIjYjA4MDYwIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTUxLDcxIFE2MCw3OCA2OSw3MSIgc3Ryb2tlPSIjYzA3ODYwIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNMzYsNzAgUTYwLDc4IDg0LDcwIFE4NCw5NiA2MCwxMDAgUTM2LDk2IDM2LDcwWiIgZmlsbD0iIzJhMTAwMCIvPiA8cGF0aCBkPSJNNDYsNjggUTU0LDY1IDYwLDY3IFE2Niw2NSA3NCw2OCIgc3Ryb2tlPSIjMWEwODAwIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNDQsNzYgUTYwLDgyIDc2LDc2IiBzdHJva2U9IiMzYTIwMTAiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iMC41Ii8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'tim_keller': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzJhNGEzYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzFhMmE0YSIvPiA8cGF0aCBkPSJNNDQsNzggTDQwLDk0IEw2MCw4NCBMODAsOTQgTDc2LDc4IFE2MCw3NiA0NCw3OFoiIGZpbGw9IiMyNDM0NjQiLz4gPHBhdGggZD0iTTUzLDc4IFE2MCw3NiA2Nyw3OCBMNjUsODggUTYwLDg0IDU1LDg4IFoiIGZpbGw9IiNmMGYwZjAiLz4gPHJlY3QgeD0iNTciIHk9IjgyIiB3aWR0aD0iNiIgaGVpZ2h0PSI4IiByeD0iMSIgZmlsbD0iIzJhNGEzYSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNlMGMwYTAiLz4gPHBhdGggZD0iTTM2LDUyIFEzNywyOCA2MCwyNiBRODMsMjggODQsNTIgUTgwLDM4IDYwLDM2IFE0MCwzOCAzNiw1MloiIGZpbGw9IiNjMGMwYzAiLz4gPHJlY3QgeD0iNDMiIHk9IjQ4IiB3aWR0aD0iMTgiIGhlaWdodD0iMTIiIHJ4PSIzIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjM2EyYTEwIiBzdHJva2Utd2lkdGg9IjEuNSIvPiA8cmVjdCB4PSI2MyIgeT0iNDgiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxMiIgcng9IjMiIGZpbGw9IndoaXRlIiBzdHJva2U9IiMzYTJhMTAiIHN0cm9rZS13aWR0aD0iMS41Ii8+IDxsaW5lIHgxPSI2MSIgeTE9IjU0IiB4Mj0iNjMiIHkyPSI1NCIgc3Ryb2tlPSIjM2EyYTEwIiBzdHJva2Utd2lkdGg9IjEuNSIvPiA8bGluZSB4MT0iNDMiIHkxPSI1NCIgeDI9IjM4IiB5Mj0iNTIiIHN0cm9rZT0iIzNhMmExMCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4gPGxpbmUgeDE9IjgxIiB5MT0iNTQiIHgyPSI4NiIgeTI9IjUyIiBzdHJva2U9IiMzYTJhMTAiIHN0cm9rZS13aWR0aD0iMS41Ii8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTQiIHI9IjIuNSIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI3MiIgY3k9IjU0IiByPSIyLjUiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjUzIiByPSIxIiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI3Mi44IiBjeT0iNTMiIHI9IjEiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00NCw0NiBRNTIsNDQgNTcsNDYiIHN0cm9rZT0iI2MwYzBjMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNjUsNDYgUTcyLDQ0IDc4LDQ2IiBzdHJva2U9IiNjMGMwYzAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2NCIgcj0iMS41IiBmaWxsPSIjYjA4MDYwIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTU0LDcwIFE2MCw3NSA2Niw3MCIgc3Ryb2tlPSIjYzA3ODYwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4=',
+  'tomas_aquino': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzNhM2E2YSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iI2YwZjBmMCIvPiA8cGF0aCBkPSJNMjAsOTAgUTQwLDg2IDYwLDg0IFE4MCw4NiAxMDAsOTAgTDEwMCw5MiBRODAsODggNjAsODYgUTQwLDg4IDIwLDkyWiIgZmlsbD0iIzFhMWExYSIvPiA8cmVjdCB4PSI2NiIgeT0iODIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiNjOGEwNjAiLz4gPGxpbmUgeDE9Ijc2IiB5MT0iODIiIHgyPSI3NiIgeTI9Ijk4IiBzdHJva2U9IiM4YTYwMzAiIHN0cm9rZS13aWR0aD0iMSIvPiA8bGluZSB4MT0iNjgiIHkxPSI4NyIgeDI9Ijc1IiB5Mj0iODciIHN0cm9rZT0iIzhhNjAzMCIgc3Ryb2tlLXdpZHRoPSIwLjgiLz4gPGxpbmUgeDE9IjY4IiB5MT0iOTEiIHgyPSI3NSIgeTI9IjkxIiBzdHJva2U9IiM4YTYwMzAiIHN0cm9rZS13aWR0aD0iMC44Ii8+IDxlbGxpcHNlIGN4PSI2MCIgY3k9IjYwIiByeD0iMjYiIHJ5PSIyOCIgZmlsbD0iI2UwYzA5MCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjQwIiByPSIyNiIgZmlsbD0iIzRhMzAxMCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjM4IiByPSIxNCIgZmlsbD0iIzNhM2E2YSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjU3IiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTciIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1NyIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjU3IiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjUyLjgiIGN5PSI1Ni4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjguOCIgY3k9IjU2LjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8cGF0aCBkPSJNNDYsNTEgUTUyLDQ5IDU3LDUxIiBzdHJva2U9IiM0YTMwMTAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTYzLDUxIFE2OCw0OSA3NCw1MSIgc3Ryb2tlPSIjNGEzMDEwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjUiIHI9IjEuNSIgZmlsbD0iI2IwODA2MCIgb3BhY2l0eT0iMC41Ii8+IDxwYXRoIGQ9Ik01NCw3MiBRNjAsNzYgNjYsNzIiIHN0cm9rZT0iI2MwNzg2MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8dGV4dCB4PSIzOCIgeT0iOTAiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNmOGQwMzAiIG9wYWNpdHk9IjAuOCI+4piFPC90ZXh0PiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'william_carey': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzNhNmEzYSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzNhM2EzYSIvPiA8cGF0aCBkPSJNNTAsNzggUTYwLDc2IDcwLDc4IEw2OCw4NiBRNjAsODIgNTIsODYgWiIgZmlsbD0iI2YwZjBmMCIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNkOGIwODAiLz4gPHBhdGggZD0iTTM2LDUyIFEzNywyNyA2MCwyNSBRODMsMjcgODQsNTIgUTgwLDM4IDYwLDM2IFE0MCwzOCAzNiw1MloiIGZpbGw9IiM2YTRhMjAiLz4gPGVsbGlwc2UgY3g9IjM2IiBjeT0iNjAiIHJ4PSI1IiByeT0iNyIgZmlsbD0iI2Q4YjA4MCIvPiA8ZWxsaXBzZSBjeD0iODQiIGN5PSI2MCIgcng9IjUiIHJ5PSI3IiBmaWxsPSIjZDhiMDgwIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjMuNSIgZmlsbD0id2hpdGUiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI1MiIgY3k9IjUzIiByPSIyIiBmaWxsPSIjMWEwYTAwIi8+IDxjaXJjbGUgY3g9IjY4IiBjeT0iNTMiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNTIuOCIgY3k9IjUyLjMiIHI9Ii44IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OC44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxwYXRoIGQ9Ik00Niw0NyBRNTIsNDUgNTcsNDciIHN0cm9rZT0iIzVhMzAxMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8cGF0aCBkPSJNNjMsNDcgUTY4LDQ1IDc0LDQ3IiBzdHJva2U9IiM1YTMwMTAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MSIgcj0iMS41IiBmaWxsPSIjYjA4MDYwIiBvcGFjaXR5PSIwLjUiLz4gPHBhdGggZD0iTTU0LDY3IFE2MCw3MiA2Niw2NyIgc3Ryb2tlPSIjYzA3ODYwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxjaXJjbGUgY3g9IjgyIiBjeT0iODgiIHI9IjEwIiBmaWxsPSJub25lIiBzdHJva2U9IiNlOGQwYTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4gPHBhdGggZD0iTTcyLDg4IFE4Miw4NCA5Miw4OCIgc3Ryb2tlPSIjZThkMGEwIiBzdHJva2Utd2lkdGg9IjAuOCIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iMC42Ii8+IDxwYXRoIGQ9Ik04Miw3OCBRODYsODggODIsOTgiIHN0cm9rZT0iI2U4ZDBhMCIgc3Ryb2tlLXdpZHRoPSIwLjgiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuNiIvPiA8L2c+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjU2IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4gPC9zdmc+',
+  'wycliffe': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPGRlZnM+PGNsaXBQYXRoIGlkPSJjIj48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1NiIvPjwvY2xpcFBhdGg+PC9kZWZzPiA8ZyBjbGlwLXBhdGg9InVybCgjYykiPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI2MCIgZmlsbD0iIzRhNmE0YSIvPiA8cGF0aCBkPSJNMCw4OCBRMzAsODAgNjAsNzggUTkwLDgwIDEyMCw4OCBMMTIwLDEyMCBMMCwxMjAgWiIgZmlsbD0iIzRhNGE0YSIvPiA8cmVjdCB4PSIzMiIgeT0iODgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxNiIgcng9IjEiIGZpbGw9IiNjOGEwNjAiIHRyYW5zZm9ybT0icm90YXRlKC01LDQzLDk2KSIvPiA8cmVjdCB4PSI1MCIgeT0iODgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxNiIgcng9IjEiIGZpbGw9IiNkOGIwNzAiIHRyYW5zZm9ybT0icm90YXRlKDUsNjEsOTYpIi8+IDxsaW5lIHgxPSI0MiIgeTE9IjkwIiB4Mj0iNDIiIHkyPSIxMDIiIHN0cm9rZT0iIzlhNzAzMCIgc3Ryb2tlLXdpZHRoPSIwLjgiIHRyYW5zZm9ybT0icm90YXRlKC01LDQyLDk2KSIvPiA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI1OCIgcng9IjI0IiByeT0iMjciIGZpbGw9IiNkYWIwODAiLz4gPHBhdGggZD0iTTM2LDUyIFEzNywyNyA2MCwyNSBRODMsMjcgODQsNTIgUTgwLDM4IDYwLDM2IFE0MCwzOCAzNiw1MloiIGZpbGw9IiNiMGIwYjAiLz4gPGVsbGlwc2UgY3g9IjM2IiBjeT0iNjIiIHJ4PSI2IiByeT0iMTIiIGZpbGw9IiNiMGIwYjAiLz4gPGVsbGlwc2UgY3g9Ijg0IiBjeT0iNjIiIHJ4PSI2IiByeT0iMTIiIGZpbGw9IiNiMGIwYjAiLz4gPGNpcmNsZSBjeD0iNTIiIGN5PSI1MyIgcj0iMy41IiBmaWxsPSJ3aGl0ZSIvPiA8Y2lyY2xlIGN4PSI2OCIgY3k9IjUzIiByPSIzLjUiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjUyIiBjeT0iNTMiIHI9IjIiIGZpbGw9IiMxYTBhMDAiLz4gPGNpcmNsZSBjeD0iNjgiIGN5PSI1MyIgcj0iMiIgZmlsbD0iIzFhMGEwMCIvPiA8Y2lyY2xlIGN4PSI1Mi44IiBjeT0iNTIuMyIgcj0iLjgiIGZpbGw9IndoaXRlIi8+IDxjaXJjbGUgY3g9IjY4LjgiIGN5PSI1Mi4zIiByPSIuOCIgZmlsbD0id2hpdGUiLz4gPHBhdGggZD0iTTQ2LDQ3IFE1Miw0NSA1Nyw0NyIgc3Ryb2tlPSIjOTA5MDkwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+IDxwYXRoIGQ9Ik02Myw0NyBRNjgsNDUgNzQsNDciIHN0cm9rZT0iIzkwOTA5MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPiA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYxIiByPSIxLjUiIGZpbGw9IiNhMDc4NTAiIG9wYWNpdHk9IjAuNSIvPiA8cGF0aCBkPSJNNTQsNjggUTYwLDcyIDY2LDY4IiBzdHJva2U9IiNiMDc4NjAiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4gPHBhdGggZD0iTTM4LDcyIFE2MCw3OCA4Miw3MiBRODIsODQgNjAsODYgUTM4LDg0IDM4LDcyWiIgZmlsbD0iI2IwYjBiMCIgb3BhY2l0eT0iMC44Ii8+IDwvZz4gPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPiA8L3N2Zz4='
+};
+</script>
+</head>
+<body>
+
+<div id="header">
+  <h1>Linha do Tempo da Igreja Cristã</h1>
+  <p>0 d.C. – Presente</p>
+</div>
+
+<div id="content-area"></div>
+
+<div id="modal-overlay">
+  <div id="modal-box">
+    <button id="modal-close">✕</button>
+    <div id="modal-top">
+      <img id="modal-portrait" src="" alt="">
+      <div>
+        <div id="modal-name"></div>
+        <div id="modal-meta"></div>
+      </div>
+    </div>
+    <div id="modal-body">
+      <div id="modal-bio"></div>
+      <div id="modal-contribution">
+        <h4>Contribuição Principal</h4>
+        <p id="modal-contribution-text"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  PERIOD DATA
+// ═══════════════════════════════════════════════════════
+const PERIODS = [
+  {
+    id: 'apostolic',
+    tabYear: '0',
+    tabName: 'Igreja Primitiva',
+    icon: '✝️',
+    color: '#4a4a4a',
+    title: 'Igreja Apostólica e Primitiva',
+    years: '0 – 100 d.C.',
+    theme: 'Os fundamentos da fé — Cristo, Pentecoste e a expansão missionária inicial',
+    events: [
+      { year: '~30 d.C.', title: 'Cristo — Vida, Morte e Ressurreição', desc: 'Jesus Cristo nasce, ministra por 3 anos, é crucificado e ressuscita ao terceiro dia. Fundamento de toda a fé cristã.', icon: '✝️', tags: ['teologia'] },
+      { year: '~30 d.C.', title: 'Pentecoste — Nascimento da Igreja', desc: 'O Espírito Santo desce sobre os discípulos. Pedro prega e cerca de 3.000 são convertidos. A Igreja nasce.', icon: '🔥', tags: ['teologia'] },
+      { year: '~49 d.C.', title: 'Concílio de Jerusalém', desc: 'Primeiro concílio da Igreja. Debate central: os gentios precisam cumprir a Lei de Moisés? Decisão: a salvação é pela fé em Cristo, não pelas obras da Lei.', icon: '📜', tags: ['concilio', 'teologia'] },
+      { year: '35–62 d.C.', title: 'Missões de Paulo', desc: 'Paulo realiza três grandes viagens missionárias pelo Mediterrâneo, fundando igrejas na Ásia Menor, Grécia e Roma. Escreve grande parte do Novo Testamento.', icon: '⛵', tags: ['missao'] },
+      { year: '~60–70 d.C.', title: 'Queda de Jerusalém', desc: 'O general romano Tito destrói o Templo e a cidade de Jerusalém, cumprindo a profecia de Jesus. A Igreja se dispersa pelo Império Romano.', icon: '🏛️', tags: ['politico'] },
+    ],
+    parallelTrack: {
+      label: 'Império Romano e Judeus',
+      color: '#7a2a10',
+      events: [
+        { year: '64 d.C.', title: 'Grande Incêndio — Nero Persegue Cristãos', desc: 'Nero culpa os cristãos pelo Grande Incêndio de Roma. Pedro e Paulo são martirizados. A primeira perseguição estatal da Igreja começa.' , icon: '🔥' },
+        { year: '66–73 d.C.', title: 'Grande Revolta Judaica', desc: 'Os judeus se revoltam contra Roma. Após 4 anos de guerra, Tito destrói Jerusalém e o Templo (70 d.C.). Mais de 1 milhão de judeus morrem ou são escravizados.', icon: '⚔️' },
+        { year: '81–96 d.C.', title: 'Perseguição de Domiciano', desc: 'O imperador Domiciano exige ser adorado como "Dominus et Deus". Cristãos que se recusam são exilados ou executados. João é exilado em Patmos, onde escreve o Apocalipse.', icon: '🦅' },
+      ],
+    },
+  },
+  {
+    id: 'apostolic-fathers',
+    tabYear: '100',
+    tabName: 'Pais Apostólicos',
+    icon: '📖',
+    color: '#8b7355',
+    title: 'Pais Apostólicos e Mártires',
+    years: '100 – 300 d.C.',
+    theme: 'Discípulos dos apóstolos defendem a fé e morrem por ela sob perseguição romana',
+    events: [
+      { year: '110 d.C.', title: 'Inácio de Antióquia', desc: 'Bispo de Antióquia, discípulo do apóstolo João. Escreveu sete cartas fundamentais às igrejas enquanto era conduzido a Roma para ser martirizado. Defendeu a divindade de Cristo e a unidade da Igreja.', icon: '✉️', tags: ['martir', 'teologia'] },
+      { year: '150 d.C.', title: 'Policarpo de Esmirna', desc: 'Discípulo direto do apóstolo João. Quando ordenado a renegar Cristo, respondeu: "Oitenta e seis anos o sirvo e Ele jamais me fez mal. Como posso blasfemar meu Rei?" Foi queimado vivo.', icon: '🕯️', tags: ['martir'] },
+      { year: '155–165 d.C.', title: 'Justino Mártir e as Apologias', desc: 'Filósofo convertido. Escreveu "Apologia" ao imperador romano defendendo os cristãos contra falsas acusações. Pioneiro da apologética cristã. Morreu decapitado.', icon: '⚖️', tags: ['teologia', 'martir'] },
+      { year: '170–202 d.C.', title: 'Irineu de Lyon', desc: 'Bispo de Lyon, discípulo de Policarpo. Seu "Contra as Heresias" é a refutação mais completa do Gnosticismo no século II. Defendeu o cânon do Novo Testamento.', icon: '🛡️', tags: ['teologia'] },
+      { year: '~200 d.C.', title: 'Tertuliano', desc: 'Primeiro grande teólogo a escrever em latim. Cunhou o termo "Trindade" (Trinitas). Apologista vigoroso que desafiou o paganismo romano.', icon: '📝', tags: ['teologia'] },
+      { year: '~250 d.C.', title: 'Concílio de Cartago', desc: 'Série de concílios em Cartago lidando com disciplina eclesiástica, especialmente quanto aos "lapsi" — cristãos que renegaram a fé durante a perseguição de Décio.', icon: '⚖️', tags: ['concilio'] },
+    ],
+    parallelTrack: {
+      label: 'Perseguições Romanas',
+      color: '#8b1a1a',
+      events: [
+        { year: '161–180 d.C.', title: 'Perseguição de Marco Aurélio', desc: 'O filósofo-imperador persegue cristãos como subversivos. Os Mártires de Lyon (177 d.C.) — incluindo o bispo Potino, 90 anos — morrem em tormentos.', icon: '🦁' },
+        { year: '249–251 d.C.', title: 'Perseguição de Décio', desc: 'Primeiro edito imperial exigindo sacrifício a deuses romanos de todos os cidadãos. Milhares são martirizados; os "lapsi" que apostatam geram a crise que os Concílios de Cartago tentarão resolver.', icon: '🔱' },
+        { year: '303–311 d.C.', title: 'Grande Perseguição de Diocleciano', desc: 'A mais brutal de todas. Igrejas são destruídas, Bíblias queimadas, líderes cristãos presos e executados. Dura 8 anos, até o Édito de Milão (313). A Igreja sobrevive e floresce.', icon: '⚡' },
+      ],
+    },
+  },
+  {
+    id: 'nicaea',
+    tabYear: '300',
+    tabName: 'Fé e Ortodoxia',
+    icon: '🏛️',
+    color: '#5a7a3a',
+    title: 'Niceia, Credos e Ortodoxia',
+    years: '300 – 500 d.C.',
+    theme: 'Grandes concílios definem a doutrina ortodoxa da Trindade e das duas naturezas de Cristo',
+    events: [
+      { year: '313 d.C.', title: 'Édito de Milão', desc: 'Constantino proclama tolerância religiosa. O cristianismo deixa de ser perseguido e começa a receber favores imperiais — mudança histórica para a Igreja.', icon: '📜', tags: ['politico'] },
+      { year: '325 d.C.', title: 'Concílio de Niceia', desc: 'Primeiro concílio ecumênico. Afirma que o Filho é "da mesma substância" (homoousios) que o Pai. Produz o Credo Niceno. Condena o Arianismo.', icon: '⛪', tags: ['concilio', 'teologia'] },
+      { year: '330 d.C.', title: 'Constantinopla — Nova Capital', desc: 'Constantino transfere a capital para Constantinopla. A Igreja do Oriente ganha poder político e teológico crescente.', icon: '🏛️', tags: ['politico'] },
+      { year: '381 d.C.', title: 'Concílio de Constantinopla I', desc: 'Segundo concílio ecumênico. Confirma o Credo Niceno. Afirma a plena divindade do Espírito Santo. Condena o Apolinarismo.', icon: '🕊️', tags: ['concilio', 'teologia'] },
+      { year: '386 d.C.', title: 'Conversão de Agostinho', desc: 'Agostinho de Hipona converte-se ao cristianismo sob influência de Ambrósio e das orações de sua mãe Mônica. Sua conversão marcará toda a teologia ocidental.', icon: '🙏', tags: ['teologia'] },
+      { year: '397 d.C.', title: 'Cânon do Novo Testamento', desc: 'O Concílio de Cartago formaliza os 27 livros do Novo Testamento como cânon oficial da Igreja. Agostinho teve papel decisivo nesse processo.', icon: '📖', tags: ['concilio', 'teologia'] },
+      { year: '410 d.C.', title: 'Saque de Roma pelos Visigodos', desc: 'Roma é saqueada pela primeira vez em 800 anos. Agostinho responde escrevendo "A Cidade de Deus", distinguindo a cidade do homem da cidade de Deus.', icon: '⚔️', tags: ['politico'] },
+      { year: '451 d.C.', title: 'Concílio de Calcedônia', desc: 'Define a doutrina das Duas Naturezas de Cristo: plenamente Deus e plenamente homem, em uma única pessoa, sem confusão, sem mudança, sem divisão.', icon: '✝️', tags: ['concilio', 'teologia'] },
+    ],
+    parallelTrack: {
+      label: 'Queda do Império Romano',
+      color: '#5a3a10',
+      events: [
+        { year: '395 d.C.', title: 'Divisão do Império Romano', desc: 'Após a morte de Teodósio, o Império se divide definitivamente: Ocidente (Roma) e Oriente (Constantinopla). A Igreja também se divide culturalmente — latim no Ocidente, grego no Oriente.', icon: '⚔️' },
+        { year: 'Séc. V', title: 'Invasões Bárbaras', desc: 'Hunos, Visigodos, Vândalos e Ostrogodos destroem a civilização romana no Ocidente. A Igreja sobrevive como única instituição organizadora — e converte os próprios invasores.', icon: '🐺' },
+        { year: '476 d.C.', title: 'Fim do Império Romano Ocidental', desc: 'Rômulo Augústulo, o último imperador, é deposto por Odoacro. Fim da Antiguidade. A Igreja Católica herda a estrutura e a língua do Império — e continua onde Roma parou.', icon: '🏛️' },
+      ],
+    },
+  },
+  {
+    id: 'medieval-early',
+    tabYear: '500',
+    tabName: 'Igreja Medieval',
+    icon: '🏰',
+    color: '#8a7a2a',
+    title: 'Igreja Medieval Inicial',
+    years: '500 – 1000 d.C.',
+    theme: 'Monasticismo, poder papal, Carlos Magno e os primeiros sinais de divisão Oriente–Ocidente',
+    events: [
+      { year: '530 d.C.', title: 'Benedito de Núrsia — Regra Monástica', desc: 'Benedito funda Monte Cassino e escreve a Regra Beneditina. Organiza a vida monástica em ora et labora (reza e trabalha). O monasticismo beneditino se espalha por toda a Europa.', icon: '⛩️', tags: ['monastico'] },
+      { year: '590–604 d.C.', title: 'Papa Gregório, o Grande', desc: 'Reformou a liturgia (Canto Gregoriano), enviou missionários à Inglaterra, combateu abusos e ampliou o poder papal. Considerado o maior papa da Antiguidade Tardia.', icon: '📯', tags: ['politico', 'missao'] },
+      { year: '610–632 d.C.', title: 'Ascensão do Islã', desc: 'Maomé funda o Islã. Em um século, o Islã conquista o Oriente Médio, Norte da África e Espanha — territórios que eram cristãos. A Igreja perde grandes regiões.', icon: '🌙', tags: ['politico'] },
+      { year: '~650 d.C.', title: 'Controvérsia Iconoclasta', desc: 'Debate violento sobre o uso de ícones. O imperador Leão III ordena sua destruição. A crise aprofunda tensões entre Roma e Constantinopla.', icon: '🖼️', tags: ['teologia', 'politico'] },
+      { year: '787 d.C.', title: 'Segundo Concílio de Niceia', desc: 'Sétimo concílio ecumênico. Restaura a veneração de ícones, distinguindo veneração de adoração. Encerra o período iconoclasta no Oriente.', icon: '⛪', tags: ['concilio'] },
+      { year: '800 d.C.', title: 'Carlos Magno Coroado', desc: 'O Papa Leão III coroa Carlos Magno na noite de Natal. A aliança entre papado e realeza estabelece o modelo de cristandade medieval.', icon: '👑', tags: ['politico'] },
+      { year: '863–867 d.C.', title: 'Cisma de Fócio', desc: 'Conflito entre Roma e Constantinopla. Fócio e o papa se excomungam mutuamente. Precursor direto do Grande Cisma de 1054.', icon: '⚡', tags: ['cisma'] },
+      { year: '910 d.C.', title: 'Fundação de Cluny', desc: 'O mosteiro de Cluny torna-se centro da reforma monástica medieval, defendendo a independência da Igreja do controle secular.', icon: '⛪', tags: ['monastico'] },
+      { year: '962 d.C.', title: 'Otão I — Sacro Império', desc: 'Otão I é coroado imperador, fundando o Sacro Império Romano-Germânico. A tensão entre poder imperial e papal dominará a Europa por séculos.', icon: '⚔️', tags: ['politico'] },
+    ],
+    parallelTrack: {
+      label: 'Expansão Islâmica',
+      color: '#1a5a30',
+      events: [
+        { year: '632–661 d.C.', title: 'Conquistas Árabes Fulminantes', desc: 'Após a morte de Maomé, o califado árabe conquista Síria, Palestina, Egito e Pérsia em apenas três décadas. Metade dos cristãos do mundo fica sob domínio islâmico.', icon: '🌙' },
+        { year: '711 d.C.', title: 'Islã Conquista a Espanha', desc: 'O exército islâmico cruza Gibraltar e conquista a Península Ibérica em 7 anos. A reconquista cristã (Reconquista) levará 700 anos para ser concluída.', icon: '🗺️' },
+        { year: '732 d.C.', title: 'Batalha de Poitiers — Europa Salva', desc: 'Carlos Martel detém o avanço islâmico na França. Historiadores consideram esta batalha um ponto de virada: sem ela, toda a Europa poderia ter se tornado islâmica.', icon: '⚔️' },
+        { year: '850s d.C.', title: 'Mártires de Córdoba', desc: 'Cristãos espanhóis como Eulógio se recusam a converter-se ao Islã e são executados. A resistência cristã persiste sob séculos de domínio islâmico na Espanha.', icon: '✝️' },
+      ],
+    },
+  },
+  {
+    id: 'medieval-high',
+    tabYear: '1000',
+    tabName: 'Idade Média',
+    icon: '⚔️',
+    color: '#9a6a20',
+    title: 'Alta Idade Média e Pré-Reforma',
+    years: '1000 – 1500 d.C.',
+    theme: 'Grande Cisma, Cruzadas, Escolástica e os precursores da Reforma',
+    events: [
+      { year: '1054 d.C.', title: 'Grande Cisma do Oriente', desc: 'Ruptura definitiva entre a Igreja Católica Romana e a Igreja Ortodoxa Oriental. O cardeal Humberto e o patriarca Cerulário trocam excomunhões. A divisão persiste até hoje.', icon: '💔', tags: ['cisma'] },
+      { year: '~1095 d.C.', title: 'Início das Cruzadas', desc: 'O Papa Urbano II convoca a Primeira Cruzada para recuperar Jerusalém. As Cruzadas (1095–1291) moldaram relações entre cristãos, muçulmanos e judeus por séculos.', icon: '⚔️', tags: ['politico', 'missao'] },
+      { year: '~1100–1300', title: 'Escolástica — Tomás de Aquino', desc: 'Método teológico que une fé e razão usando a lógica aristotélica. Tomás de Aquino sistematiza o pensamento cristão na "Suma Teológica" — obra teológica mais influente da Idade Média.', icon: '📚', tags: ['teologia'] },
+      { year: 'Séc. XIII', title: 'Ordens Mendicantes', desc: 'Francisco de Assis funda os Franciscanos (1209) e Domingos de Gusmão os Dominicanos (1216). Renovam a vida religiosa e pregam entre os pobres.', icon: '🍞', tags: ['monastico', 'missao'] },
+      { year: '~1380 d.C.', title: 'John Wycliffe — Precursor da Reforma', desc: 'Traduziu a Bíblia para o inglês e criticou a corrupção da Igreja Romana e o papado. Seus seguidores (Lolardos) foram perseguidos. Influenciou diretamente Jan Hus.', icon: '📖', tags: ['reforma', 'teologia'] },
+      { year: '1415 d.C.', title: 'Jan Hus — Mártir da Reforma', desc: 'Reformador tcheco condenado pelo Concílio de Constança e queimado vivo. Pregou contra a corrupção eclesiástica e defendeu a autoridade da Bíblia — cem anos antes de Lutero.', icon: '🔥', tags: ['reforma', 'martir'] },
+      { year: '1450s d.C.', title: 'Invenção da Imprensa — Gutenberg', desc: 'A prensa de tipos móveis tornou possível a Reforma Protestante ao democratizar o acesso às Escrituras. A Bíblia de Gutenberg (1455) é o primeiro livro impresso em massa.', icon: '🖨️', tags: ['missao'] },
+      { year: '1453 d.C.', title: 'Queda de Constantinopla', desc: 'O sultão Mehmed II conquista Constantinopla, encerrando o Império Romano do Oriente. Muitos estudiosos gregos fogem para a Europa, alimentando o Renascimento.', icon: '🏛️', tags: ['politico'] },
+    ],
+    parallelTrack: {
+      label: 'Cristandade Oriental e Mundo',
+      color: '#2a5a7a',
+      events: [
+        { year: '988 d.C.', title: 'Conversão da Rússia — Vladimir', desc: 'O príncipe Vladimir de Kiev se batiza e declara o cristia­nismo ortodoxo religião do Estado. Toda a Rússia é batizada no rio Dnieper. O maior evento missionário eslavo da história.', icon: '☦️' },
+        { year: 'Séc. XIII', title: 'Invasão Mongol — Igreja sob Ameaça', desc: 'Gengis Cã e sucessores destroem o califado de Bagdá (1258) e arrasam reinos cristãos. Paradoxalmente, muitos mongóis se convertem ao cristia­nismo nestoriano e ao catolicismo.', icon: '🏹' },
+        { year: 'Séc. XIV', title: 'Peste Negra — 1/3 da Europa Morre', desc: 'A Peste Negra (1347–1353) mata entre 30 e 60% da Europa. A crise devasta­dora gera questionamentos teológicos profundos e movimentos de misericórdia cristã — e também flagelantes e perseguição de judeus.', icon: '💀' },
+      ],
+    },
+  },
+  {
+    id: 'reformation',
+    tabYear: '1500',
+    tabName: 'Reforma',
+    icon: '📜',
+    color: '#2a7a78',
+    title: 'Reforma Protestante',
+    years: '1500 – 1650 d.C.',
+    theme: 'Sola Scriptura, Sola Fide — Lutero, Calvino e a ruptura com Roma',
+    events: [
+      { year: '1517 d.C.', title: 'Lutero e as 95 Teses', desc: 'Martinho Lutero afixa as 95 Teses em Wittenberg contestando as indulgências. Início da Reforma Protestante. Princípio central: Sola Fide — somente pela fé.', icon: '📜', tags: ['reforma', 'teologia'] },
+      { year: '1521 d.C.', title: 'Dieta de Worms — "Aqui Estou"', desc: 'Lutero se recusa a retratar-se diante do imperador Carlos V: "Aqui estou, não posso fazer outra coisa, que Deus me ajude." É excomungado e declarado fora da lei.', icon: '⚖️', tags: ['reforma', 'politico'] },
+      { year: '1536 d.C.', title: 'Calvino e as Institutas', desc: 'João Calvino publica "As Institutas da Religião Cristã" — a sistematização mais completa da teologia reformada. Lidera a Reforma em Genebra, enfatizando a soberania de Deus.', icon: '📚', tags: ['reforma', 'teologia'] },
+      { year: '~1534 d.C.', title: 'Bíblia de Lutero — Traduções Populares', desc: 'Lutero traduz a Bíblia para o alemão vernáculo. Outras traduções surgem em toda a Europa. A Bíblia chega ao povo comum pela primeira vez.', icon: '📖', tags: ['reforma', 'missao'] },
+      { year: '1618 d.C.', title: 'Sínodo de Dort — TULIP', desc: 'Sínodo em Dordrecht define os Cinco Pontos do Calvinismo: Depravação Total, Eleição Incondicional, Expiação Limitada, Graça Irresistível, Perseverança dos Santos (TULIP).', icon: '⛪', tags: ['concilio', 'teologia'] },
+      { year: '1640s d.C.', title: 'Puritanos e a Confissão de Westminster', desc: 'A Assembleia de Westminster (1643–1649) produz a Confissão de Westminster e os Catecismos — os documentos confessionais mais influentes do protestantismo reformado.', icon: '📜', tags: ['reforma', 'teologia'] },
+      { year: '1648 d.C.', title: 'Paz de Vestfália', desc: 'Encerra a Guerra dos Trinta Anos (1618–1648), conflito em grande parte motivado por tensões religiosas. Estabelece o princípio de soberania nacional e tolerância religiosa relativa.', icon: '🕊️', tags: ['politico'] },
+    ],
+    parallelTrack: {
+      label: 'Contra-Reforma Católica',
+      color: '#8b2020',
+      events: [
+        { year: '1534 d.C.', title: 'Companhia de Jesus — Jesuítas', desc: 'Inácio de Loyola funda os Jesuítas como força de missão e educação para reconquistar almas ao catolicismo e evangelizar o mundo novo.', icon: '✝️' },
+        { year: '1545–1563', title: 'Concílio de Trento', desc: 'Resposta oficial de Roma ao protestantismo. Reafirma a tradição e as Escrituras como fontes de autoridade, o purgatório, as indulgências e os sete sacramentos.', icon: '⛪' },
+        { year: '1559 d.C.', title: 'Índice de Livros Proibidos', desc: 'Paulo IV cria o Index Librorum Prohibitorum. A Igreja proíbe obras de Lutero, Calvino, Erasmo e centenas de outros. Vigente até 1966.', icon: '📵' },
+        { year: '1571 d.C.', title: 'Batalha de Lepanto', desc: 'A Liga Santa liderada por Roma derrota a frota otomana. Considerada uma vitória providencial pelo catolicismo — o avanço do Islã no Mediterrâneo é contido.', icon: '⚓' },
+        { year: 'Séc. XVI–XVII', title: 'Missões Jesuítas — Novo Mundo', desc: 'Jesuítas como Francisco Xavier na Ásia e os mártires do Canadá levam o catolicismo às Américas, África e Japão. Mais de 40 jesuítas são martirizados.', icon: '🌏' },
+      ],
+    },
+  },
+  {
+    id: 'awakening',
+    tabYear: '1700',
+    tabName: 'Despertamentos',
+    icon: '🌍',
+    color: '#3a5a8a',
+    title: 'Iluminismo, Despertamentos e Era Missionária',
+    years: '1650 – 1900 d.C.',
+    theme: 'A fé desafiada pela razão, avivamentos espirituais e o grande movimento missionário moderno',
+    events: [
+      { year: '~1730–1750', title: 'O Grande Despertar', desc: 'Poderoso avivamento nas colônias americanas e na Grã-Bretanha. Jonathan Edwards prega "Pecadores nas Mãos de um Deus Irado". George Whitefield evangeliza multidões ao ar livre.', icon: '🔥', tags: ['missao', 'teologia'] },
+      { year: '1770s d.C.', title: 'Iluminismo e Desafios à Fé', desc: 'O Iluminismo (Voltaire, Rousseau, Hume) questiona a revelação, os milagres e a autoridade da Bíblia. A razão é colocada acima da fé — maior desafio intelectual desde o Arianismo.', icon: '💡', tags: ['teologia'] },
+      { year: '1792 d.C.', title: 'William Carey — Missões Modernas', desc: 'Carey parte para a Índia como missionário e funda a Sociedade Missionária Batista. Considerado o "Pai das Missões Modernas". Traduz a Bíblia para bengali e outras línguas.', icon: '🌍', tags: ['missao'] },
+      { year: 'Séc. XIX', title: 'Era das Missões Modernas', desc: 'Hudson Taylor (China), David Livingstone (África), Adoniram Judson (Burma) levam o Evangelho a continentes inteiros. O Evangelho chega à Ásia, África e Oceania.', icon: '🚢', tags: ['missao'] },
+      { year: '1850s', title: 'Crítica Bíblica e Teologia Liberal', desc: 'A "Alta Crítica" alemã questiona a historicidade bíblica. Friedrich Schleiermacher e Adolf von Harnack desenvolvem teologia liberal que subordina a revelação à experiência humana.', icon: '🔬', tags: ['teologia'] },
+      { year: '1850s–1900', title: 'Spurgeon, Moody e a Reação Conservadora', desc: 'Charles Spurgeon defende o calvinismo e a inerrância bíblica. D.L. Moody realiza campanhas evangelísticas massivas nos EUA e na Inglaterra.', icon: '📢', tags: ['teologia', 'missao'] },
+    ],
+    parallelTrack: {
+      label: 'Iluminismo e Ciência Secular',
+      color: '#4a4a6a',
+      events: [
+        { year: '1687 d.C.', title: 'Newton — Principia Mathematica', desc: 'Isaac Newton publica a lei da gravitação universal. A ciência moderna nasce — alguns a usam para glorificar Deus, outros para dispensá-lo.', icon: '🍎' },
+        { year: '1748 d.C.', title: 'Hume — Contra os Milagres', desc: 'David Hume publica "Investigação sobre o Entendimento Humano", argumentando que milagres são irracionais. O ceticismo filosófico desafia a base da fé cristã.', icon: '💭' },
+        { year: '1789 d.C.', title: 'Revolução Francesa — Ateísmo de Estado', desc: 'A Revolução Francesa fecha igrejas, destrói mosteiros e instala o "Culto da Razão". O secularismo militante torna-se força política pela primeira vez na história.', icon: '🗽' },
+        { year: '1859 d.C.', title: 'Darwin — A Origem das Espécies', desc: 'Charles Darwin publica sua teoria da evolução. O texto é usado para desafiar a criação bíblica e o design inteligente, gerando um dos maiores debates ciência-fé da história.', icon: '🐒' },
+      ],
+    },
+  },
+  {
+    id: 'modern',
+    tabYear: '1900',
+    tabName: 'Contemporâneo',
+    icon: '🌐',
+    color: '#3a3a3a',
+    title: 'Igreja no Século XX e Presente',
+    years: '1900 – Presente',
+    theme: 'Pentecostalismo, Guerras Mundiais, Vaticano II e o Protestantismo Global',
+    events: [
+      { year: '1906 d.C.', title: 'Rua Azusa — Pentecostalismo', desc: 'O avivamento em Los Angeles sob William J. Seymour inicia o movimento pentecostal moderno. Hoje o pentecostalismo tem mais de 600 milhões de membros.', icon: '🔥', tags: ['teologia', 'missao'] },
+      { year: '1910 d.C.', title: 'Conferência de Edimburgo', desc: 'A Conferência Missionária Mundial reúne protestantes para coordenar a evangelização global. Ponto de partida do movimento ecumênico moderno e do futuro Conselho Mundial de Igrejas.', icon: '🌍', tags: ['missao', 'concilio'] },
+      { year: '1920s–40s', title: 'Neo-Ortodoxia — Karl Barth', desc: 'Karl Barth reage ao liberalismo com o "Comentário à Epístola aos Romanos". Reafirma a soberania da Palavra de Deus. A teologia dialética renova o protestantismo europeu.', icon: '📚', tags: ['teologia'] },
+      { year: '1934 d.C.', title: 'Declaração de Barmen', desc: 'Bonhoeffer e Barth lideram a Confessing Church resistindo à cooptação nazista da Igreja. A Declaração de Barmen afirma que a Igreja deve obediência a Cristo, não ao Estado.', icon: '✝️', tags: ['teologia', 'politico', 'martir'] },
+      { year: '1962–1965', title: 'Concílio Vaticano II', desc: 'João XXIII convoca o Vaticano II para "aggiornamento" da Igreja Católica. Reforma a liturgia, abre diálogo com protestantes e outras religiões. O evento eclesial mais importante do século XX.', icon: '⛪', tags: ['concilio'] },
+      { year: '1974 d.C.', title: 'Pacto de Lausanne', desc: 'O Congresso liderado por Billy Graham produz o Pacto de Lausanne — declaração que une evangelismo e responsabilidade social cristã. Marco do evangelicalismo global.', icon: '🌐', tags: ['missao'] },
+      { year: '2000 d.C.', title: 'Protestantismo Global — Sul Global', desc: 'O centro do cristianismo muda para o Sul Global (África, Ásia, América Latina). A Igreja mais crescente está na China, Nigéria, Brasil e Coreia do Sul.', icon: '🌍', tags: ['missao'] },
+      { year: 'Presente', title: 'Tecnologia, Perseguição e Discipulado', desc: 'A Igreja navega o secularismo ocidental, perseguição intensa no Oriente Médio e Ásia, e a revolução digital que transforma o discipulado. Mais cristãos foram martirizados no séc. XX do que em todos os séculos anteriores.', icon: '📱', tags: ['missao', 'martir'] },
+      { year: 'Presente', title: 'Teologia Reformada Contemporânea', desc: 'Renascimento da teologia reformada com John Piper, Tim Keller, R.C. Sproul e Mark Dever. A herança do século XVI ressoa nas igrejas do século XXI.', icon: '📖', tags: ['teologia', 'reforma'] },
+    ],
+    parallelTrack: {
+      label: 'Guerras, Totalitarismo e Perseguição',
+      color: '#3a3a1a',
+      events: [
+        { year: '1914–1918', title: 'Primeira Guerra Mundial', desc: 'Nações cristãs se destroem mutuamente em escala industrial. A confiança no progresso e na civilização cristã ocidental colapsa. O liberalismo teológico perde credibilidade.', icon: '💣' },
+        { year: '1917 d.C.', title: 'Revolução Russa — Ateísmo de Estado', desc: 'Lenin e os bolcheviques tomam o poder. O ateísmo estatal torna-se política oficial. Começa a maior perseguição sistemática à Igreja na história — mais de 100.000 clérigos são executados.', icon: '☭' },
+        { year: '1933–1945', title: 'Nazismo — Shoah e Igreja Confessante', desc: 'Hitler ascende ao poder. 6 milhões de judeus são assassinados. A Igreja Confessante (Barth, Bonhoeffer) resiste; a Deutsche Christen colabora com o regime nazista.', icon: '✡️' },
+        { year: '1949 d.C.', title: 'China Comunista — Igreja Subterrânea', desc: 'Mao expulsa todos os missionários. A Igreja vai para a clandestinidade — e cresce de 1 milhão para mais de 100 milhões de cristãos em 70 anos. O maior avivamento da história.', icon: '🏮' },
+      ],
+    },
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+//  FIGURES DATA
+// ═══════════════════════════════════════════════════════
+const FIGURES = [
+  { name: 'Cristo',            years: '~4 a.C. – 30 d.C.', file: 'cristo',           period: 'apostolic',       bio: 'Jesus de Nazaré, o Cristo (Ungido). Filho de Deus encarnado. Realizou seu ministério na Galileia e Judeia, proclamando o Reino de Deus. Foi crucificado sob Pôncio Pilatos e ressuscitou ao terceiro dia. Fundamento e cabeça da Igreja.', contribution: 'A pessoa e obra de Jesus Cristo — sua vida perfeita, morte expiatória e ressurreição — é o fundamento de toda a fé e teologia cristã.' },
+  { name: 'Paulo',             years: '~5 – 67 d.C.',       file: 'paulo',            period: 'apostolic',       bio: 'Saulo de Tarso, fariseu convertido dramaticamente na estrada de Damasco. Tornou-se o maior missionário do Novo Testamento. Escreveu 13 epístolas canônicas que formam a espinha dorsal da teologia cristã.', contribution: 'Teologia da justificação pela fé, missão gentílica e fundação de igrejas em toda a bacia do Mediterrâneo. Moldou Agostinho, Lutero, Calvino e toda a Reforma.' },
+  { name: 'Pedro',             years: '~1 – 67 d.C.',       file: 'pedro',            period: 'apostolic',       bio: 'Simão Pedro, pescador da Galileia chamado por Jesus. Liderou a Igreja primitiva em Jerusalém. Pregou no Pentecoste. Escreveu duas epístolas. Tradição o identifica como primeiro bispo de Roma. Martirizado em Roma.', contribution: 'Liderança apostólica da Igreja primitiva e pregação do Evangelho aos judeus e gentios.' },
+  { name: 'João',              years: '~6 – 100 d.C.',      file: 'joao',             period: 'apostolic',       bio: 'Apóstolo amado, filho de Zebedeu. Autor do Evangelho de João, três epístolas e o Apocalipse. Único apóstolo que não morreu como mártir. Viveu em Éfeso onde discipulou Policarpo e Inácio.', contribution: 'A teologia joanina do Logos, do amor divino ("Deus é amor") e da vida eterna. O Evangelho de João é o mais teológico dos quatro evangelhos.' },
+  { name: 'Atanásio',          years: '296 – 373 d.C.',     file: 'atanasio',         period: 'nicaea',          bio: '"Atanásio contra o mundo" — slogan que resume sua vida. Defendeu a divindade de Cristo (homoousios) por décadas, sendo exilado cinco vezes por cinco imperadores diferentes, mas nunca cedendo.', contribution: 'Defesa da doutrina da plena divindade de Cristo no Concílio de Niceia. Sem Atanásio, o Arianismo poderia ter dominado o cristianismo.' },
+  { name: 'Agostinho',         years: '354 – 430 d.C.',     file: 'agostinho',        period: 'nicaea',          bio: 'Bispo de Hipona (Norte da África). Antes da conversão, viveu uma vida de prazer intelectual e sensual. Após converter-se, tornou-se o mais influente teólogo do Ocidente. Suas "Confissões" são a primeira autobiografia espiritual da história.', contribution: 'Teologia da graça, predestinação, pecado original e a Cidade de Deus. Moldou tanto o catolicismo medieval quanto a teologia reformada de Lutero e Calvino.' },
+  { name: 'Cirilo',            years: '815 – 869 d.C.',     file: 'cirilo',           period: 'medieval-early',  bio: 'Missionário e irmão de Metódio. Criou o alfabeto glagolítico (predecessor do cirílico) para traduzir a Bíblia aos povos eslavos. Evangelizou a Morária e os Balcãs com seu irmão.', contribution: 'Criação do alfabeto cirílico e tradução da Bíblia para os povos eslavos, abrindo caminho para o Evangelho no mundo eslavo.' },
+  { name: 'Bento',             years: '480 – 547 d.C.',     file: 'bento',            period: 'medieval-early',  bio: 'Benedito de Núrsia, fundador do monasticismo ocidental. Fundou 12 mosteiros e o grande Monte Cassino. Sua Regra organizou a vida monástica por séculos.', contribution: 'A Regra Beneditina (Ora et Labora) estruturou a vida monástica ocidental. Os mosteiros preservaram o conhecimento clássico durante a Idade das Trevas.' },
+  { name: 'Gregório',          years: '540 – 604 d.C.',     file: 'gregorio',         period: 'medieval-early',  bio: 'Gregório I, o Grande — Papa de 590 a 604. Reformou a Igreja, organizou a liturgia (Canto Gregoriano), enviou missionários à Inglaterra e fortaleceu o papado como poder temporal.', contribution: 'Consolidação do poder papal, reforma litúrgica, evangelização da Inglaterra. Ponte entre a Antiguidade cristã e a Idade Média.' },
+  { name: 'Carlos Magno',      years: '742 – 814 d.C.',     file: 'carlos_magno',     period: 'medieval-early',  bio: 'Rei dos Francos e primeiro Imperador do Sacro Império Romano-Germânico (coroado em 800 d.C.). Unificou grande parte da Europa Ocidental e promoveu a educação e o Evangelho.', contribution: 'Criação do Sacro Império Romano-Germânico e o modelo de cristandade medieval como projeto político-religioso.' },
+  { name: 'Fócio',             years: '820 – 891 d.C.',     file: 'focio',            period: 'medieval-early',  bio: 'Patriarca de Constantinopla, um dos mais eruditos do seu tempo. Seu conflito com Roma sobre jurisdição e o Filioque aprofundou divisões que levariam ao Grande Cisma de 1054.', contribution: 'O Cisma Fócio antecipou a divisão definitiva entre o catolicismo romano e o ortodoxismo oriental.' },
+  { name: 'Anselmo',           years: '1033 – 1109 d.C.',   file: 'anselmo',          period: 'medieval-high',   bio: 'Arcebispo de Cantuária, fundador da teologia escolástica. Famosa frase: "Fides quaerens intellectum" (Fé que busca entendimento). Desenvolveu o argumento ontológico para a existência de Deus.', contribution: 'Argumento ontológico, teoria da satisfação (expiação) e o método escolástico de unir fé e razão.' },
+  { name: 'S. Francisco\nde Assis', years: '1181 – 1226 d.C.',  file: 'francisco',     period: 'medieval-high',   bio: 'Filho de um rico comerciante que renunciou a tudo para seguir Cristo radicalmente. Fundou os Franciscanos (1209), dedicada à pobreza voluntária, pregação e serviço aos pobres.', contribution: 'Fundação dos Franciscanos e renovação espiritual medieval pela ênfase na pobreza apostólica e amor ao próximo.' },
+  { name: 'Tomás de Aquino',   years: '1225 – 1274 d.C.',   file: 'tomas_aquino',     period: 'medieval-high',   bio: 'Frade dominicano, "Doutor Angélico". Autor da "Suma Teológica" — a mais completa sistematização da teologia cristã medieval. Integrou a filosofia aristotélica à teologia cristã.', contribution: 'A Suma Teológica e o sistema tomista — síntese de fé e razão que moldou o pensamento ocidental por séculos.' },
+  { name: 'John Wycliffe',     years: '1320 – 1384 d.C.',   file: 'wycliffe',         period: 'medieval-high',   bio: '"Estrela da Manhã da Reforma". Traduziu a Bíblia para o inglês (1382) e questionou a autoridade papal e a transubstanciação. Seus seguidores Lolardos foram perseguidos.', contribution: 'Primeira tradução da Bíblia para o inglês e preparação teológica para a Reforma Protestante.' },
+  { name: 'Jan Hus',           years: '1369 – 1415 d.C.',   file: 'jan_hus',          period: 'medieval-high',   bio: 'Sacerdote e reformador tcheco. Pregou contra a corrupção da Igreja e defendeu a autoridade da Bíblia. Queimado vivo em 6 de julho de 1415 pelo Concílio de Constança.', contribution: 'Precursor direto da Reforma Protestante. Sua morte criou o movimento hussita tcheco e inspirou Lutero um século depois.' },
+  { name: 'Calvino',           years: '1509 – 1564 d.C.',   file: 'calvino',          period: 'reformation',     bio: 'João Calvino, reformador francês que liderou a Reforma em Genebra. As "Institutas da Religião Cristã" são a sistematização mais influente da teologia reformada. Ênfase na soberania de Deus.', contribution: 'As Institutas da Religião Cristã, a teologia reformada (calvinismo), e influência sobre o puritanismo e o protestantismo mundial.' },
+  { name: 'Lutero',            years: '1483 – 1546 d.C.',   file: 'lutero',           period: 'reformation',     bio: 'Monge agostiniano que desencadeou a Reforma Protestante com as 95 Teses (1517). Sua descoberta da justificação pela fé (Sola Fide) mudou a história. Traduziu a Bíblia para o alemão.', contribution: 'Sola Fide, Sola Scriptura, tradução da Bíblia para o alemão e o início da Reforma Protestante que transformou o mundo.' },
+  { name: 'John Knox',         years: '1514 – 1572 d.C.',   file: 'john_knox',        period: 'reformation',     bio: 'Reformador escocês formado por Calvino em Genebra. Voltou à Escócia e liderou a Reforma escocesa, fundando a Igreja Presbiteriana.', contribution: 'Fundação do presbiterianismo escocês, que influenciou o puritanismo inglês e americano.' },
+  { name: 'Jonathan Edwards',  years: '1703 – 1758 d.C.',   file: 'jonathan_edwards', period: 'awakening',       bio: 'Teólogo e pregador americano, figura central do Grande Despertar. Seu sermão "Pecadores nas Mãos de um Deus Irado" (1741) é o mais famoso da história americana. Filósofo e teólogo de primeira ordem.', contribution: 'Liderança do Primeiro Grande Despertar, defesa do calvinismo e teologia da beleza de Deus e da vida afetiva.' },
+  { name: 'William Carey',     years: '1761 – 1834 d.C.',   file: 'william_carey',    period: 'awakening',       bio: '"Pai das Missões Modernas". Sapateiro batista que partiu para a Índia em 1793 e passou 41 anos lá. Traduziu a Bíblia para bengali, sânscrito e outras línguas. Combateu o sati.', contribution: 'Inaugurou a era moderna das missões. Frase famosa: "Espere grandes coisas de Deus; tente grandes coisas para Deus."' },
+  { name: 'Charles Spurgeon',  years: '1834 – 1892 d.C.',   file: 'spurgeon',         period: 'awakening',       bio: '"O Príncipe dos Pregadores". Pregador batista que pastoreou o Metropolitan Tabernacle em Londres com 6.000 membros. Publicou mais de 3.500 sermões. Defendeu o calvinismo.', contribution: 'Defesa da teologia reformada no século XIX, evangelismo de massa e o legado de sermões ainda amplamente lidos.' },
+  { name: 'Karl Barth',        years: '1886 – 1968 d.C.',   file: 'karl_barth',       period: 'modern',          bio: 'O maior teólogo protestante do século XX. Seu "Comentário à Epístola aos Romanos" rompeu com o liberalismo teológico. Co-autor da Declaração de Barmen contra o nazismo.', contribution: 'Neo-ortodoxia, a Declaração de Barmen e a renovação da teologia reformada no século XX.' },
+  { name: 'Dietrich\nBonhoeffer', years: '1906 – 1945 d.C.', file: 'bonhoeffer',     period: 'modern',          bio: 'Pastor e teólogo alemão que resistiu ao nazismo. Fundou o seminário clandestino de Finkenwalde. Preso pela Gestapo em 1943 e executado em 9 de abril de 1945, dias antes do fim da guerra.', contribution: '"Graça cara" versus "graça barata", teologia do discipulado custoso e resistência cristã ao totalitarismo — martírio como testemunho.' },
+  { name: 'Billy Graham',      years: '1918 – 2018 d.C.',   file: 'billy_graham',     period: 'modern',          bio: 'Evangelista americano mais influente do século XX. Pregou o Evangelho pessoalmente para mais de 215 milhões de pessoas em mais de 185 países. Conselheiro de presidentes americanos.', contribution: 'Evangelismo de massa de alcance global, o Pacto de Lausanne (1974) e a mobilização do evangelicalismo internacional.' },
+  { name: 'C.S. Lewis',        years: '1898 – 1963 d.C.',   file: 'cs_lewis',         period: 'modern',          bio: 'Escritor e apologista cristão britânico. Professor em Oxford e Cambridge. Ateu convertido ao anglicanismo. Autor de "Mero Cristianismo", "O Problema do Sofrimento" e "As Crônicas de Nárnia".', contribution: 'Apologética cristã acessível ao grande público, imaginação cristã na ficção, e obras que levaram inúmeras pessoas à fé.' },
+  { name: 'Tim Keller',        years: '1950 – 2023 d.C.',   file: 'tim_keller',       period: 'modern',          bio: 'Pastor presbiteriano que fundou a Redeemer Presbyterian Church em Manhattan (1989), crescida para 5.000 membros. Autor de "O Deus Generoso" e "A Razão de Deus".', contribution: 'Teologia reformada aplicada ao contexto urbano secular, evangelismo intelectualmente engajado e o Movimento Redeemer de plantio de igrejas.' },
+];
+
+// ═══════════════════════════════════════════════════════
+//  TAG LABELS
+// ═══════════════════════════════════════════════════════
+const TAG_LABELS = {
+  teologia: 'Teologia', concilio: 'Concílio', missao: 'Missão',
+  reforma: 'Reforma', politico: 'Político', cisma: 'Cisma',
+  monastico: 'Monástico', martir: 'Mártir',
+};
+
+// ═══════════════════════════════════════════════════════
+//  BUILD TABS
+// ═══════════════════════════════════════════════════════
+function buildTabs() {
+  const nav = document.getElementById('period-tabs');
+
+  // "Ver Tudo" tab first
+  const vt = document.createElement('div');
+  vt.className = 'ver-tudo-tab';
+  vt.id = 'ver-tudo-tab';
+  vt.innerHTML = `<span class="vt-icon">🗺️</span><span class="vt-label">Ver Tudo</span>`;
+  vt.addEventListener('click', showOverview);
+  nav.appendChild(vt);
+
+  PERIODS.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'period-tab';
+    div.dataset.id = p.id;
+    div.style.background = p.color;
+    div.innerHTML = `
+      <span class="tab-icon">${p.icon}</span>
+      <span class="tab-year">${p.tabYear}</span>
+      <span class="tab-name">${p.tabName}</span>
+    `;
+    div.addEventListener('click', () => showPeriodAndRestoreLayout(p.id));
+    nav.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  BUILD FIGURES
+// ═══════════════════════════════════════════════════════
+function buildFigures() {
+  const scroll = document.getElementById('figures-scroll');
+  FIGURES.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'figure-card';
+    const displayName = f.name.replace('\n', '<br>');
+    div.innerHTML = `
+      <img src="${PORTRAIT_URIS[f.file]}" alt="${f.name.replace('\n',' ')}">
+      <div class="fc-name">${displayName}</div>
+      <div class="fc-year">${f.years.split('–')[0].trim()}</div>
+    `;
+    div.addEventListener('click', () => showFigure(f));
+    scroll.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SHOW PERIOD
+// ═══════════════════════════════════════════════════════
+function showPeriod(id) {
+  const period = PERIODS.find(p => p.id === id);
+  if (!period) return;
+
+  document.querySelectorAll('.period-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.id === id);
+  });
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = `
+    <div class="period-header">
+      <div class="ph-icon" style="background:${period.color}20; border-color:${period.color}40;">
+        <span>${period.icon}</span>
+      </div>
+      <div>
+        <h2>${period.title}</h2>
+        <div class="ph-years">${period.years}</div>
+        <div class="ph-theme">${period.theme}</div>
+      </div>
+    </div>
+    <div class="events-grid">
+      ${period.events.map(e => `
+        <div class="event-card">
+          <div class="ec-stripe" style="background:${period.color};"></div>
+          <div class="ec-icon">${e.icon}</div>
+          <div class="ec-year">${e.year}</div>
+          <div class="ec-title">${e.title}</div>
+          <div class="ec-desc">${e.desc}</div>
+          <div class="ec-tags">
+            ${(e.tags||[]).map(t=>`<span class="tag tag-${t}">${TAG_LABELS[t]||t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SHOW FIGURE MODAL
+// ═══════════════════════════════════════════════════════
+function showFigure(f) {
+  const period = PERIODS.find(p => p.id === f.period);
+  const accentColor = period ? period.color : '#c8a030';
+
+  document.getElementById('modal-portrait').src = PORTRAIT_URIS[f.file];
+  document.getElementById('modal-portrait').style.border = `4px solid ${accentColor}`;
+  document.getElementById('modal-name').textContent = f.name.replace('\n', ' ');
+  document.getElementById('modal-meta').textContent = f.years;
+  document.getElementById('modal-bio').textContent = f.bio;
+  document.getElementById('modal-contribution-text').textContent = f.contribution;
+  document.getElementById('modal-contribution').style.borderLeftColor = accentColor;
+  document.getElementById('modal-contribution').querySelector('h4').style.color = accentColor;
+
+  // Set modal top bg to period color (faint)
+  document.getElementById('modal-top').style.background = `${accentColor}18`;
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+// ── Modal close ──
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.remove('open');
+});
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('modal-overlay').classList.remove('open');
+});
+
+// ── Year parsing + time-axis helpers ──
+function parseYearRange(yearStr) {
+  const s = (yearStr || '').replace(/d\.C\.|a\.C\./gi, '').replace(/[~≈]/g, '').trim();
+  const range = s.match(/(\d+)\s*[–—-]\s*(\d+)/);
+  if (range) return { start: parseInt(range[1]), end: parseInt(range[2]) };
+  const num = s.match(/(\d+)/);
+  const y = num ? parseInt(num[0]) : 0;
+  return { start: y, end: y };
+}
+
+function parseEventYear(yearStr) {
+  const s = (yearStr || '').replace(/D\.C\.|A\.C\./gi, '').replace(/[~≈]/g, '').trim();
+  if (/presente/i.test(s)) return 2025;
+  const range = s.match(/(\d+)\s*[–—-]\s*(\d+)/);
+  if (range) return (parseInt(range[1]) + parseInt(range[2])) / 2;
+  const num = s.match(/(\d+)/);
+  return num ? parseInt(num[0]) : 0;
+}
+
+function calcEventPositions(events, minYear, pxPerYear, minGap = 82) {
+  const positions = [];
+  let lastBottom = 0;
+  for (const e of events) {
+    const ideal = Math.round((parseEventYear(e.year) - minYear) * pxPerYear);
+    const top = Math.max(ideal, lastBottom);
+    positions.push(top);
+    lastBottom = top + minGap;
+  }
+  return positions;
+}
+
+// Use the main track's actual positions as the time ruler so parallel events
+// appear at the same vertical level as matching years in the main track.
+function calcParallelPositions(parallelEvents, mainEvents, mainPositions, pxPerYear, minGap = 82) {
+  const mainYears = mainEvents.map(e => parseEventYear(e.year));
+
+  function interpolate(year) {
+    if (mainYears.length === 0) return year * pxPerYear;
+    const first = mainYears[0], last = mainYears[mainYears.length - 1];
+    if (year <= first) return Math.max(0, mainPositions[0] + (year - first) * pxPerYear);
+    if (year >= last)  return mainPositions[mainPositions.length - 1] + (year - last) * pxPerYear;
+    for (let i = 0; i < mainYears.length - 1; i++) {
+      if (year >= mainYears[i] && year <= mainYears[i + 1]) {
+        const span = mainYears[i + 1] - mainYears[i];
+        const t = span === 0 ? 0 : (year - mainYears[i]) / span;
+        return mainPositions[i] + t * (mainPositions[i + 1] - mainPositions[i]);
+      }
+    }
+    return year * pxPerYear;
+  }
+
+  const positions = [];
+  let lastBottom = 0;
+  for (const e of parallelEvents) {
+    const ideal = Math.round(interpolate(parseEventYear(e.year)));
+    const top = Math.max(ideal, lastBottom);
+    positions.push(top);
+    lastBottom = top + minGap;
+  }
+  return positions;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SHOW OVERVIEW (Ver Tudo)
+// ═══════════════════════════════════════════════════════
+function showOverview() {
+  const area = document.getElementById('content-area');
+  area.style.padding = '20px';
+  area.style.maxWidth = 'none';
+
+  const cols = PERIODS.map(p => {
+    const periodFigures = FIGURES.filter(f => f.period === p.id);
+    const figuresHTML = periodFigures.map(f => `
+      <div class="ov-figure" onclick="showFigure(${JSON.stringify(f).replace(/"/g, '&quot;')})">
+        <img src="${PORTRAIT_URIS[f.file]}" alt="${f.name.replace('\n',' ')}">
+        <div class="of-name">${f.name.replace('\n','<br>')}</div>
+      </div>
+    `).join('');
+
+    function renderEvents(events, color) {
+      const single = e => {
+        const sd = e.desc.split('.')[0].trim().substring(0, 68) + '…';
+        return `
+          <div class="ov-event" onclick="this.classList.toggle('expanded')">
+            <div class="oe-bubble" style="background:${color}">${e.icon}</div>
+            <div class="oe-body">
+              <div class="oe-year">${e.year} <span class="oe-toggle">▼</span></div>
+              <div class="oe-title">${e.title}</div>
+
+              <div class="oe-full-desc">${e.desc}</div>
+            </div>
+          </div>`;
+      };
+      const branch = (eA, eB) => {
+        const sdA = eA.desc.split('.')[0].trim().substring(0, 44) + '…';
+        const sdB = eB.desc.split('.')[0].trim().substring(0, 44) + '…';
+        const sp  = `stroke="${color}" stroke-opacity="0.4" stroke-width="2" fill="none"`;
+        const spd = `stroke="${color}" stroke-opacity="0.4" stroke-width="1.5" fill="none" stroke-dasharray="4,3"`;
+        return `
+          <svg class="branch-fork-svg" viewBox="0 0 190 26" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19,0 L19,26" ${sp}/>
+            <path d="M19,0 C19,18 117,8 117,26" ${spd}/>
+          </svg>
+          <div class="branch-group">
+            <div class="ov-event" onclick="this.classList.toggle('expanded')">
+              <div class="oe-bubble" style="background:${color}">${eA.icon}</div>
+              <div class="oe-body">
+                <div class="oe-year">${eA.year} <span class="oe-toggle">▼</span></div>
+                <div class="oe-title">${eA.title}</div>
+
+                <div class="oe-full-desc">${eA.desc}</div>
+              </div>
+            </div>
+            <div class="ov-event" onclick="this.classList.toggle('expanded')">
+              <div class="oe-bubble" style="background:${color}">${eB.icon}</div>
+              <div class="oe-body">
+                <div class="oe-year">${eB.year} <span class="oe-toggle">▼</span></div>
+                <div class="oe-title">${eB.title}</div>
+
+                <div class="oe-full-desc">${eB.desc}</div>
+              </div>
+            </div>
+          </div>
+          <svg class="branch-merge-svg" viewBox="0 0 190 26" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19,0 L19,26" ${sp}/>
+            <path d="M117,0 C117,18 19,8 19,26" ${spd}/>
+          </svg>`;
+      };
+      const ranges = events.map(e => parseYearRange(e.year));
+      const out = [];
+      let i = 0;
+      while (i < events.length) {
+        const r = ranges[i], rNext = ranges[i + 1];
+        if (rNext && rNext.start >= r.start && rNext.start < r.end) {
+          out.push(branch(events[i], events[i + 1]));
+          i += 2;
+        } else {
+          out.push(single(events[i]));
+          i++;
+        }
+      }
+      return out.join('');
+    }
+
+    const hasParallel = !!p.parallelTrack;
+
+    // Detect time-overlapping pairs in an event list → returns {bLeft, bRight} Sets of indices
+    function detectBranchPairs(events) {
+      const bLeft = new Set(), bRight = new Set();
+      const ranges = events.map(e => parseYearRange(e.year));
+      for (let i = 0; i + 1 < events.length; i++) {
+        if (bRight.has(i)) continue;
+        const r = ranges[i], rN = ranges[i + 1];
+        if (rN && rN.start >= r.start && rN.start < r.end) {
+          bLeft.add(i); bRight.add(i + 1);
+        }
+      }
+      return { bLeft, bRight };
+    }
+
+    // Compute positions skipping branch-right events (they share position with branch-left)
+    function calcPosWithBranches(events, minYear, pxPerYear, bRight) {
+      const filtered = events.filter((_, i) => !bRight.has(i));
+      const pos = calcEventPositions(filtered, minYear, pxPerYear);
+      const result = [];
+      let fi = 0;
+      for (let i = 0; i < events.length; i++) {
+        if (bRight.has(i)) result.push(result[i - 1]);
+        else result.push(pos[fi++]);
+      }
+      return result;
+    }
+
+    const renderAbs = (events, color, positions, bLeft = new Set(), bRight = new Set(), flowPos = null) => {
+      const sp  = `stroke="${color}" stroke-opacity="0.4" stroke-width="2" fill="none"`;
+      const spd = `stroke="${color}" stroke-opacity="0.4" stroke-width="1.5" fill="none" stroke-dasharray="4,3"`;
+      const startPos = flowPos || positions;
+      const evHTML = events.map((e, i) => {
+        const isL = bLeft.has(i), isR = bRight.has(i);
+        const posStyle = isL ? 'left:10px;right:50%;'
+                       : isR ? 'left:calc(50% + 3px);right:5px;'
+                       : 'left:10px;right:10px;';
+        const maxLen = (isL || isR) ? 42 : 68;
+        const sd = e.desc.split('.')[0].trim().substring(0, maxLen) + '…';
+        const dataAttrs = flowPos
+          ? `data-flow="${flowPos[i]}" data-time="${positions[i]}"`
+          : '';
+        return `
+          <div class="ov-event ov-event-abs${isL||isR?' branch-lane':''}" style="top:${startPos[i]}px;${posStyle}" ${dataAttrs} onclick="this.classList.toggle('expanded')">
+            <div class="oe-bubble" style="background:${color}">${e.icon}</div>
+            <div class="oe-body">
+              <div class="oe-year">${e.year} <span class="oe-toggle">▼</span></div>
+              <div class="oe-title">${e.title}</div>
+
+              <div class="oe-full-desc">${e.desc}</div>
+            </div>
+          </div>`;
+      }).join('');
+      const curveH = 14, eventH = 46;
+      const svgHTML = [...bLeft].map(li => {
+        const tTop = positions[li];
+        const fTop = flowPos ? flowPos[li] : tTop;
+        const startTop = flowPos ? fTop : tTop;
+        const forkData = flowPos ? `data-flow="${fTop - curveH}" data-time="${tTop - curveH}"` : '';
+        const mergeData = flowPos ? `data-flow="${fTop + eventH}" data-time="${tTop + eventH}"` : '';
+        return `
+          <svg class="branch-fork-svg" style="position:absolute;top:${startTop-curveH}px;left:0;width:100%;height:${curveH}px;overflow:visible;background:none" ${forkData} viewBox="0 0 100 ${curveH}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14,0 C14,${curveH} 61,0 61,${curveH}" ${spd}/>
+          </svg>
+          <svg class="branch-merge-svg" style="position:absolute;top:${startTop+eventH}px;left:0;width:100%;height:${curveH}px;overflow:visible;background:none" ${mergeData} viewBox="0 0 100 ${curveH}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M61,0 C61,${curveH} 14,0 14,${curveH}" ${spd}/>
+          </svg>`;
+      }).join('');
+      return evHTML + svgHTML;
+    };
+
+    let bodyHTML;
+    if (hasParallel) {
+      const pt = p.parallelTrack;
+      const allYears = [...p.events, ...pt.events].map(e => parseEventYear(e.year)).filter(y => y > 0);
+      const minYear = Math.min(...allYears);
+      const maxYear = Math.max(...allYears);
+      const range = Math.max(maxYear - minYear, 1);
+      const PX_PER_YEAR = Math.max(1.5, Math.min(5, 600 / range));
+      const { bLeft, bRight } = detectBranchPairs(p.events);
+      const mainPos = calcPosWithBranches(p.events, minYear, PX_PER_YEAR, bRight);
+      const parallelPos = calcParallelPositions(pt.events, p.events, mainPos, PX_PER_YEAR);
+      const trackHeight = Math.max(
+        mainPos[mainPos.length - 1] + 130,
+        parallelPos[parallelPos.length - 1] + 130
+      );
+
+      // Compact flow positions (no time gaps) — used when parallel track is collapsed
+      const FLOW_GAP = 72;
+      const mainFlowPos = [];
+      let flowTop = 0;
+      for (let i = 0; i < p.events.length; i++) {
+        if (bRight.has(i)) { mainFlowPos.push(mainFlowPos[i - 1]); }
+        else { mainFlowPos.push(flowTop); flowTop += FLOW_GAP; }
+      }
+      const flowHeight = flowTop + 55;
+
+      // Height anchor: starts at flowHeight (collapsed), animates to trackHeight (expanded)
+      const anchor = `<div class="ov-height-anchor" style="height:${flowHeight}px;width:0;flex-shrink:0;transition:height 0.55s cubic-bezier(0.4,0,0.2,1)" data-flow-h="${flowHeight}px" data-time-h="${trackHeight}px"></div>`;
+      const parallelAnchor = `<div style="height:${trackHeight}px;width:0;flex-shrink:0"></div>`;
+      bodyHTML = `
+        <div class="ov-tracks">
+          <div class="ov-track track-main">
+            <div class="ov-track-label">
+              <span class="tl-dot" style="background:${p.color}"></span>
+              Trilha Principal
+            </div>
+            <div class="ov-events" style="--ov-spine:${p.color}">
+              ${anchor}${renderAbs(p.events, p.color, mainPos, bLeft, bRight, mainFlowPos)}
+            </div>
+          </div>
+          <div class="ov-track track-parallel collapsed">
+            <div class="ov-track-label" style="color:${pt.color}">
+              <span class="tl-dot" style="background:${pt.color}"></span>
+              ⑂ ${pt.label}
+            </div>
+            <div class="ov-events" style="--ov-spine:${pt.color}">
+              ${parallelAnchor}${renderAbs(pt.events, pt.color, parallelPos)}
+            </div>
+          </div>
+        </div>`;
+    } else {
+      bodyHTML = `<div class="ov-events" style="--ov-spine:${p.color}">${renderEvents(p.events, p.color)}</div>`;
+    }
+
+    return `
+      <div class="ov-col${hasParallel ? ' has-parallel parallel-collapsed' : ''}">
+        <div class="ov-col-header" style="background:${p.color}">
+          <span class="ov-h-icon">${p.icon}</span>
+          <span class="ov-h-year">${p.tabYear}</span>
+          <span class="ov-h-name">${p.tabName}</span>
+          ${hasParallel ? `<div class="ov-fork-banner" onclick="toggleParallel(this)"><span class="fork-icon">⑂</span><span class="fork-label">${p.parallelTrack.label}</span><span class="fork-chevron">▶</span></div>` : ''}
+        </div>
+        ${bodyHTML}
+        ${periodFigures.length ? `<div class="ov-figures">${figuresHTML}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="overview-grid">${cols}</div>`;
+}
+
+function toggleAllEvents() {
+  const btn = document.getElementById('expand-toggle-btn');
+  const anyExpanded = !!document.querySelector('.ov-event.expanded');
+  document.querySelectorAll('.ov-event').forEach(e =>
+    e.classList.toggle('expanded', !anyExpanded)
+  );
+  btn.textContent = anyExpanded ? '▼ Expandir' : '▲ Colapsar';
+}
+
+function toggleParallel(banner) {
+  const col = banner.closest('.ov-col');
+  const track = col.querySelector('.ov-track.track-parallel');
+  const chevron = banner.querySelector('.fork-chevron');
+  const isCollapsed = track.classList.toggle('collapsed');
+  col.classList.toggle('parallel-collapsed', isCollapsed);
+  chevron.textContent = isCollapsed ? '▶' : '◀';
+
+  // Animate main-track events between compact-flow and time-aligned positions
+  const mainEventsEl = col.querySelector('.ov-track.track-main .ov-events');
+  if (mainEventsEl) {
+    mainEventsEl.querySelectorAll('.ov-event-abs[data-flow], .branch-fork-svg[data-flow], .branch-merge-svg[data-flow]').forEach(el => {
+      el.style.top = (isCollapsed ? el.dataset.flow : el.dataset.time) + 'px';
+    });
+    const anchor = mainEventsEl.querySelector('.ov-height-anchor');
+    if (anchor) anchor.style.height = isCollapsed ? anchor.dataset.flowH : anchor.dataset.timeH;
+  }
+}
+
+// ── Init ──
+showOverview();
+</script>
+</body>
+</html>

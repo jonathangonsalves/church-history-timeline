@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#2a3a5a"/>
+    <!-- dark suit -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#1a1a2a"/>
+    <!-- white shirt/tie -->
+    <path d="M52,78 Q60,76 68,78 L66,88 L60,82 L54,88 Z" fill="#f0f0f0"/>
+    <rect x="57" y="82" width="6" height="8" rx="1" fill="#3a3a5a"/>
+    <!-- face -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#e0c0a0"/>
+    <!-- short dark hair, neatly parted -->
+    <path d="M36,52 Q37,27 60,25 Q83,27 84,52 Q80,38 62,37 L60,30 L58,37 Q40,38 36,52Z" fill="#3a2010"/>
+    <!-- round glasses (distinctive!) -->
+    <circle cx="52" cy="54" r="9" fill="white" stroke="#3a2010" stroke-width="2"/>
+    <circle cx="68" cy="54" r="9" fill="white" stroke="#3a2010" stroke-width="2"/>
+    <line x1="61" y1="54" x2="59" y2="54" stroke="#3a2010" stroke-width="2"/>
+    <line x1="43" y1="54" x2="38" y2="52" stroke="#3a2010" stroke-width="2"/>
+    <line x1="77" y1="54" x2="82" y2="52" stroke="#3a2010" stroke-width="2"/>
+    <!-- eyes behind glasses -->
+    <circle cx="52" cy="54" r="2.5" fill="#1a0a00"/>
+    <circle cx="68" cy="54" r="2.5" fill="#1a0a00"/>
+    <circle cx="52.8" cy="53" r="1" fill="white"/>
+    <circle cx="68.8" cy="53" r="1" fill="white"/>
+    <!-- brows -->
+    <path d="M44,44 Q52,42 57,44" stroke="#3a2010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,44 Q68,42 76,44" stroke="#3a2010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="64" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth (slight smile, knowing) -->
+    <path d="M54,70 Q60,74 66,70" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

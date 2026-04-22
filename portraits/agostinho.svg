@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#2d5a27"/>
+    <!-- clothing (black robe) -->
+    <path d="M0,90 Q30,82 60,80 Q90,82 120,90 L120,120 L0,120 Z" fill="#1a1a2a"/>
+    <!-- book -->
+    <rect x="66" y="82" width="20" height="16" rx="2" fill="#c8a060"/>
+    <line x1="76" y1="82" x2="76" y2="98" stroke="#8a6030" stroke-width="1"/>
+    <!-- face (brown skin) -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#8a5030"/>
+    <!-- short dark hair -->
+    <path d="M36,52 Q37,27 60,25 Q83,27 84,52 Q80,40 60,38 Q40,40 36,52Z" fill="#1a0a00"/>
+    <!-- eyes -->
+    <circle cx="52" cy="53" r="3.5" fill="white"/>
+    <circle cx="68" cy="53" r="3.5" fill="white"/>
+    <circle cx="52" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="52.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="52.3" r=".8" fill="white"/>
+    <!-- brows -->
+    <path d="M46,47 Q52,45 57,47" stroke="#1a0a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,47 Q68,45 74,47" stroke="#1a0a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="61" r="1.5" fill="#6a3010" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,68 Q60,73 66,68" stroke="#9a5030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- short beard -->
+    <path d="M38,72 Q60,80 82,72 Q82,84 60,86 Q38,84 38,72Z" fill="#1a0a00" opacity="0.7"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

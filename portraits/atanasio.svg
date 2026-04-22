@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#4a2060"/>
+    <!-- mitre (bishop hat) BEHIND -->
+    <path d="M42,48 L50,20 L60,6 L70,20 L78,48 Z" fill="#c8a040"/>
+    <path d="M40,46 L80,46 L80,52 L40,52 Z" fill="#c8a040"/>
+    <!-- stole line -->
+    <line x1="60" y1="52" x2="60" y2="20" stroke="#f8e060" stroke-width="1.5" opacity="0.6"/>
+    <!-- cross on mitre -->
+    <line x1="55" y1="14" x2="65" y2="14" stroke="#f8e060" stroke-width="2"/>
+    <line x1="60" y1="10" x2="60" y2="18" stroke="#f8e060" stroke-width="2"/>
+    <!-- clothing -->
+    <path d="M0,90 Q30,82 60,80 Q90,82 120,90 L120,120 L0,120 Z" fill="#4a2060"/>
+    <!-- stole -->
+    <path d="M48,80 L52,100 L68,100 L72,80 Q60,76 48,80Z" fill="#c8a040" opacity="0.7"/>
+    <!-- face (dark skin) -->
+    <ellipse cx="60" cy="60" rx="24" ry="26" fill="#7a4a2a"/>
+    <!-- short dark hair -->
+    <path d="M36,56 Q37,34 60,32 Q83,34 84,56 Q80,44 60,42 Q40,44 36,56Z" fill="#1a0a00"/>
+    <!-- eyes -->
+    <circle cx="52" cy="55" r="3.5" fill="white"/>
+    <circle cx="68" cy="55" r="3.5" fill="white"/>
+    <circle cx="52" cy="55" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="55" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="54.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="54.3" r=".8" fill="white"/>
+    <!-- brows -->
+    <path d="M46,49 Q52,47 57,49" stroke="#1a0a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,49 Q68,47 74,49" stroke="#1a0a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="63" r="1.8" fill="#5a3010" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,70 Q60,75 66,70" stroke="#9a5030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- short beard shadow -->
+    <path d="M40,74 Q60,80 80,74 Q80,82 60,84 Q40,82 40,74Z" fill="#1a0a00" opacity="0.5"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#8a7030"/>
+    <!-- papal tiara (triple crown) -->
+    <ellipse cx="60" cy="36" rx="24" ry="7" fill="#f8e040"/>
+    <ellipse cx="60" cy="30" rx="20" ry="6" fill="#f8e040"/>
+    <ellipse cx="60" cy="25" rx="16" ry="5" fill="#f8e040"/>
+    <rect x="36" y="36" width="48" height="7" rx="2" fill="#f8e040"/>
+    <circle cx="60" cy="18" r="5" fill="#f8e040"/>
+    <!-- cross on tiara -->
+    <line x1="57" y1="18" x2="63" y2="18" stroke="#c8a030" stroke-width="1.5"/>
+    <line x1="60" y1="14" x2="60" y2="22" stroke="#c8a030" stroke-width="1.5"/>
+    <!-- stripes on tiara -->
+    <line x1="36" y1="30" x2="84" y2="30" stroke="#c8a030" stroke-width="0.8" opacity="0.5"/>
+    <line x1="40" y1="25" x2="80" y2="25" stroke="#c8a030" stroke-width="0.8" opacity="0.5"/>
+    <!-- white vestments -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#f0f0f0"/>
+    <!-- gold stole -->
+    <path d="M48,78 L52,102 L68,102 L72,78 Q60,74 48,78Z" fill="#f8d040" opacity="0.7"/>
+    <!-- face -->
+    <ellipse cx="60" cy="60" rx="24" ry="26" fill="#e0c090"/>
+    <!-- white fringe hair -->
+    <path d="M36,58 Q38,44 60,42 Q82,44 84,58" fill="none" stroke="#d0d0d0" stroke-width="8" stroke-linecap="round"/>
+    <!-- eyes -->
+    <circle cx="52" cy="56" r="3.5" fill="white"/>
+    <circle cx="68" cy="56" r="3.5" fill="white"/>
+    <circle cx="52" cy="56" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="56" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="55.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="55.3" r=".8" fill="white"/>
+    <!-- brows (white/gray) -->
+    <path d="M46,50 Q52,48 57,50" stroke="#aaaaaa" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,50 Q68,48 74,50" stroke="#aaaaaa" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="64" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,71 Q60,75 66,71" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- short white beard -->
+    <path d="M38,74 Q60,82 82,74 Q82,84 60,86 Q38,84 38,74Z" fill="#d0d0d0"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

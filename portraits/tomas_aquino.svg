@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#3a3a6a"/>
+    <!-- white Dominican robe -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#f0f0f0"/>
+    <!-- black mantle -->
+    <path d="M20,90 Q40,86 60,84 Q80,86 100,90 L100,92 Q80,88 60,86 Q40,88 20,92Z" fill="#1a1a1a"/>
+    <!-- book -->
+    <rect x="66" y="82" width="20" height="16" rx="2" fill="#c8a060"/>
+    <line x1="76" y1="82" x2="76" y2="98" stroke="#8a6030" stroke-width="1"/>
+    <line x1="68" y1="87" x2="75" y2="87" stroke="#8a6030" stroke-width="0.8"/>
+    <line x1="68" y1="91" x2="75" y2="91" stroke="#8a6030" stroke-width="0.8"/>
+    <!-- face (well-fed) -->
+    <ellipse cx="60" cy="60" rx="26" ry="28" fill="#e0c090"/>
+    <!-- tonsure -->
+    <circle cx="60" cy="40" r="26" fill="#4a3010"/>
+    <circle cx="60" cy="38" r="14" fill="#3a3a6a"/>
+    <!-- eyes -->
+    <circle cx="52" cy="57" r="3.5" fill="white"/>
+    <circle cx="68" cy="57" r="3.5" fill="white"/>
+    <circle cx="52" cy="57" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="57" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="56.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="56.3" r=".8" fill="white"/>
+    <!-- brows -->
+    <path d="M46,51 Q52,49 57,51" stroke="#4a3010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,51 Q68,49 74,51" stroke="#4a3010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="65" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,72 Q60,76 66,72" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- star on chest (symbol of Aquinas) -->
+    <text x="38" y="90" font-size="12" fill="#f8d030" opacity="0.8">★</text>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#3a5a8a"/>
+    <!-- clothing -->
+    <path d="M0,90 Q30,82 60,80 Q90,82 120,90 L120,120 L0,120 Z" fill="#3a5a8a"/>
+    <path d="M0,92 Q30,86 60,84 Q90,86 120,92 L120,120 L0,120 Z" fill="#c8a040" opacity="0.3"/>
+    <!-- face -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#e0c090"/>
+    <!-- white curly hair -->
+    <circle cx="40" cy="38" r="12" fill="#d8d8d8"/>
+    <circle cx="52" cy="30" r="11" fill="#d8d8d8"/>
+    <circle cx="64" cy="28" r="11" fill="#d8d8d8"/>
+    <circle cx="76" cy="32" r="11" fill="#d8d8d8"/>
+    <circle cx="84" cy="42" r="10" fill="#d8d8d8"/>
+    <!-- face redrawn on top of hair -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#e0c090"/>
+    <!-- eyes -->
+    <circle cx="52" cy="53" r="3.5" fill="white"/>
+    <circle cx="68" cy="53" r="3.5" fill="white"/>
+    <circle cx="52" cy="53" r="2" fill="#1a2a4a"/>
+    <circle cx="68" cy="53" r="2" fill="#1a2a4a"/>
+    <circle cx="52.8" cy="52.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="52.3" r=".8" fill="white"/>
+    <!-- brows -->
+    <path d="M46,47 Q52,45 57,47" stroke="#8a8080" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,47 Q68,45 74,47" stroke="#8a8080" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="61" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,68 Q60,72 66,68" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- white full beard -->
+    <path d="M36,70 Q60,78 84,70 Q84,96 60,100 Q36,96 36,70Z" fill="#d8d8d8"/>
+    <!-- keys -->
+    <circle cx="40" cy="96" r="6" fill="none" stroke="#f8d030" stroke-width="2"/>
+    <line x1="46" y1="96" x2="56" y2="96" stroke="#f8d030" stroke-width="2"/>
+    <line x1="50" y1="96" x2="50" y2="100" stroke="#f8d030" stroke-width="2"/>
+    <line x1="54" y1="96" x2="54" y2="100" stroke="#f8d030" stroke-width="2"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

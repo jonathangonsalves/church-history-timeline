@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#6a3a1a"/>
+    <!-- Victorian dark suit -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#1a1a1a"/>
+    <!-- white shirt/cravat -->
+    <path d="M50,78 Q60,76 70,78 L68,86 Q60,82 52,86 Z" fill="#f0f0f0"/>
+    <!-- face (large, jolly) -->
+    <ellipse cx="60" cy="60" rx="26" ry="28" fill="#e0c0a0"/>
+    <!-- short dark hair -->
+    <path d="M34,54 Q35,28 60,26 Q85,28 86,54 Q80,40 60,38 Q40,40 34,54Z" fill="#3a1a00"/>
+    <!-- eyes (twinkling) -->
+    <circle cx="52" cy="55" r="4" fill="white"/>
+    <circle cx="68" cy="55" r="4" fill="white"/>
+    <circle cx="52" cy="55" r="2.5" fill="#1a0a00"/>
+    <circle cx="68" cy="55" r="2.5" fill="#1a0a00"/>
+    <circle cx="52.8" cy="54" r="1" fill="white"/>
+    <circle cx="68.8" cy="54" r="1" fill="white"/>
+    <!-- brows -->
+    <path d="M45,49 Q52,47 57,49" stroke="#3a1a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,49 Q68,47 75,49" stroke="#3a1a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose (wide) -->
+    <circle cx="60" cy="63" r="2" fill="#b08060" opacity="0.5"/>
+    <!-- mouth (wide smile) -->
+    <path d="M51,71 Q60,78 69,71" stroke="#c07860" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- full dark beard and mustache -->
+    <path d="M36,70 Q60,78 84,70 Q84,96 60,100 Q36,96 36,70Z" fill="#2a1000"/>
+    <!-- mustache -->
+    <path d="M46,68 Q54,65 60,67 Q66,65 74,68" stroke="#1a0800" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M44,76 Q60,82 76,76" stroke="#3a2010" stroke-width="1" fill="none" opacity="0.5"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#7a5020"/>
+    <!-- brown Franciscan robe -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#8a5a20"/>
+    <!-- rope belt hint -->
+    <path d="M36,84 Q60,82 84,84" stroke="#e8d0a0" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- face -->
+    <ellipse cx="60" cy="60" rx="24" ry="27" fill="#e0c090"/>
+    <!-- tonsure (bald top with ring of hair) -->
+    <circle cx="60" cy="40" r="24" fill="#6a4a20"/>
+    <!-- bald center patch -->
+    <circle cx="60" cy="38" r="13" fill="#7a5020"/>
+    <!-- ears -->
+    <ellipse cx="36" cy="62" rx="5" ry="7" fill="#e0c090"/>
+    <ellipse cx="84" cy="62" rx="5" ry="7" fill="#e0c090"/>
+    <!-- eyes -->
+    <circle cx="52" cy="57" r="3.5" fill="white"/>
+    <circle cx="68" cy="57" r="3.5" fill="white"/>
+    <circle cx="52" cy="57" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="57" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="56.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="56.3" r=".8" fill="white"/>
+    <!-- brows -->
+    <path d="M46,51 Q52,49 57,51" stroke="#5a3010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,51 Q68,49 74,51" stroke="#5a3010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="65" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth (warm smile) -->
+    <path d="M53,72 Q60,78 67,72" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- small bird on shoulder -->
+    <ellipse cx="84" cy="80" rx="7" ry="5" fill="#d0c8b8"/>
+    <circle cx="88" cy="77" r="3" fill="#d0c8b8"/>
+    <path d="M90,77 L94,75" stroke="#c0b8a8" stroke-width="1" fill="none"/>
+    <circle cx="89" cy="76" r="1" fill="#1a0a00"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

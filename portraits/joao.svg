@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#8b2020"/>
+    <!-- long brown hair back -->
+    <ellipse cx="60" cy="76" rx="30" ry="38" fill="#4a2c10"/>
+    <!-- clothing -->
+    <path d="M0,92 Q30,84 60,82 Q90,84 120,92 L120,120 L0,120 Z" fill="#8b2020"/>
+    <!-- face -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#e8c090"/>
+    <!-- hair front -->
+    <path d="M36,52 Q37,27 60,25 Q83,27 84,52 Q76,38 60,36 Q44,38 36,52Z" fill="#4a2c10"/>
+    <!-- eyes -->
+    <circle cx="52" cy="53" r="3.5" fill="white"/>
+    <circle cx="68" cy="53" r="3.5" fill="white"/>
+    <circle cx="52" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="52.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="52.3" r=".8" fill="white"/>
+    <!-- brows -->
+    <path d="M46,47 Q52,45 57,47" stroke="#3a1a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,47 Q68,45 74,47" stroke="#3a1a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="61" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,67 Q60,72 66,67" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- eagle symbol -->
+    <text x="82" y="40" font-size="16" fill="#f8d030" opacity="0.8">🦅</text>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#7a4020"/>
+    <!-- clothing -->
+    <path d="M0,90 Q30,82 60,80 Q90,82 120,90 L120,120 L0,120 Z" fill="#a06030"/>
+    <!-- face -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#d4a070"/>
+    <!-- bald highlight -->
+    <ellipse cx="60" cy="38" rx="20" ry="12" fill="#c89060" opacity="0.4"/>
+    <!-- eyes -->
+    <circle cx="52" cy="53" r="3.5" fill="white"/>
+    <circle cx="68" cy="53" r="3.5" fill="white"/>
+    <circle cx="52" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="53" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="52.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="52.3" r=".8" fill="white"/>
+    <!-- brows (slight frown) -->
+    <path d="M46,46 Q52,44 57,46" stroke="#3a1a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,46 Q68,44 74,46" stroke="#3a1a00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="61" r="1.5" fill="#a07850" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,68 Q60,72 66,68" stroke="#b07050" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- full dark beard -->
+    <path d="M36,70 Q60,78 84,70 Q84,98 60,102 Q36,98 36,70Z" fill="#1a0a00"/>
+    <!-- beard texture -->
+    <path d="M44,74 Q60,80 76,74" stroke="#2a1a0a" stroke-width="1" fill="none" opacity="0.6"/>
+    <path d="M40,82 Q60,88 80,82" stroke="#2a1a0a" stroke-width="1" fill="none" opacity="0.6"/>
+    <!-- scroll hint -->
+    <rect x="72" y="84" width="12" height="16" rx="3" fill="#e8d8a0" opacity="0.6"/>
+    <line x1="74" y1="88" x2="82" y2="88" stroke="#a09060" stroke-width="1" opacity="0.8"/>
+    <line x1="74" y1="92" x2="82" y2="92" stroke="#a09060" stroke-width="1" opacity="0.8"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

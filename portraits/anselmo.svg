@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#5a4a8a"/>
+    <!-- mitre -->
+    <path d="M42,50 L51,22 L60,8 L69,22 L78,50 Z" fill="#e8d080"/>
+    <rect x="40" y="48" width="40" height="6" rx="2" fill="#e8d080"/>
+    <!-- cross on mitre -->
+    <line x1="57" y1="16" x2="63" y2="16" stroke="#c8a030" stroke-width="1.5"/>
+    <line x1="60" y1="12" x2="60" y2="20" stroke="#c8a030" stroke-width="1.5"/>
+    <!-- clothing -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#5a4a8a"/>
+    <!-- stole -->
+    <path d="M48,78 L52,102 L68,102 L72,78 Q60,74 48,78Z" fill="#e8d080" opacity="0.7"/>
+    <!-- face -->
+    <ellipse cx="60" cy="62" rx="24" ry="26" fill="#e0c090"/>
+    <!-- gray hair (sides) -->
+    <ellipse cx="36" cy="62" rx="8" ry="14" fill="#a0a0a0"/>
+    <ellipse cx="84" cy="62" rx="8" ry="14" fill="#a0a0a0"/>
+    <!-- eyes -->
+    <circle cx="52" cy="57" r="3.5" fill="white"/>
+    <circle cx="68" cy="57" r="3.5" fill="white"/>
+    <circle cx="52" cy="57" r="2" fill="#1a0a00"/>
+    <circle cx="68" cy="57" r="2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="56.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="56.3" r=".8" fill="white"/>
+    <!-- brows (gray) -->
+    <path d="M46,51 Q52,49 57,51" stroke="#a0a0a0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M63,51 Q68,49 74,51" stroke="#a0a0a0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="65" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth -->
+    <path d="M54,72 Q60,76 66,72" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

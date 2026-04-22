@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#2a2a2a"/>
+    <!-- dark robe -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#1a1a1a"/>
+    <!-- white Geneva bands (collar) -->
+    <rect x="53" y="78" width="14" height="8" rx="1" fill="#f0f0f0"/>
+    <rect x="53" y="80" width="6" height="10" rx="1" fill="#f0f0f0"/>
+    <rect x="61" y="80" width="6" height="10" rx="1" fill="#f0f0f0"/>
+    <!-- face -->
+    <ellipse cx="60" cy="58" rx="24" ry="27" fill="#e0c0a0"/>
+    <!-- short gray hair -->
+    <path d="M36,52 Q37,27 60,25 Q83,27 84,52 Q80,38 60,36 Q40,38 36,52Z" fill="#909090"/>
+    <!-- eyes (fierce) -->
+    <circle cx="52" cy="53" r="3.5" fill="white"/>
+    <circle cx="68" cy="53" r="3.5" fill="white"/>
+    <circle cx="52" cy="53" r="2.2" fill="#1a0a00"/>
+    <circle cx="68" cy="53" r="2.2" fill="#1a0a00"/>
+    <circle cx="52.8" cy="52.3" r=".8" fill="white"/>
+    <circle cx="68.8" cy="52.3" r=".8" fill="white"/>
+    <!-- brows (furrowed) -->
+    <path d="M46,46 Q52,44 57,47" stroke="#707070" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M63,47 Q68,44 74,46" stroke="#707070" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- nose -->
+    <circle cx="60" cy="61" r="1.5" fill="#b08060" opacity="0.5"/>
+    <!-- mouth (stern) -->
+    <path d="M54,68 Q60,70 66,68" stroke="#c07860" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- full gray beard -->
+    <path d="M36,70 Q60,78 84,70 Q84,96 60,100 Q36,96 36,70Z" fill="#909090"/>
+    <path d="M44,76 Q60,82 76,76" stroke="#b0b0b0" stroke-width="1" fill="none" opacity="0.5"/>
+    <path d="M40,86 Q60,92 80,86" stroke="#b0b0b0" stroke-width="1" fill="none" opacity="0.5"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><clipPath id="c"><circle cx="60" cy="60" r="56"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <circle cx="60" cy="60" r="60" fill="#5a4a2a"/>
+    <!-- tweed jacket (warm brown) -->
+    <path d="M0,88 Q30,80 60,78 Q90,80 120,88 L120,120 L0,120 Z" fill="#7a5a30"/>
+    <!-- lapels -->
+    <path d="M45,78 L42,92 L60,84 L78,92 L75,78 Q60,76 45,78Z" fill="#8a6a40"/>
+    <!-- white shirt -->
+    <path d="M54,78 Q60,76 66,78 L64,86 Q60,82 56,86 Z" fill="#f0f0f0"/>
+    <!-- face (round, jovial) -->
+    <ellipse cx="60" cy="60" rx="26" ry="28" fill="#e0c0a0"/>
+    <!-- balding brown hair -->
+    <path d="M34,54 Q34,30 60,28 Q86,30 86,54" fill="none" stroke="#6a4a20" stroke-width="8" stroke-linecap="round"/>
+    <!-- bald patch top (no hair in center) -->
+    <ellipse cx="60" cy="36" rx="14" ry="10" fill="#5a4a2a"/>
+    <!-- eyes (warm, twinkling) -->
+    <circle cx="52" cy="56" r="4" fill="white"/>
+    <circle cx="68" cy="56" r="4" fill="white"/>
+    <circle cx="52" cy="56" r="2.5" fill="#1a2a4a"/>
+    <circle cx="68" cy="56" r="2.5" fill="#1a2a4a"/>
+    <circle cx="52.8" cy="55" r="1" fill="white"/>
+    <circle cx="68.8" cy="55" r="1" fill="white"/>
+    <!-- brows (bushy) -->
+    <path d="M44,49 Q52,46 57,49" stroke="#6a4a20" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M63,49 Q68,46 76,49" stroke="#6a4a20" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- nose (broad) -->
+    <circle cx="60" cy="64" r="2" fill="#b08060" opacity="0.5"/>
+    <!-- mouth (wide smile) -->
+    <path d="M52,72 Q60,79 68,72" stroke="#c07860" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- pipe (distinctive!) -->
+    <path d="M64,72 Q74,70 78,66" stroke="#5a3010" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="79" cy="65" rx="5" ry="7" fill="none" stroke="#5a3010" stroke-width="2"/>
+    <circle cx="79" cy="63" r="3" fill="#3a1a00" opacity="0.5"/>
+  </g>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="white" stroke-width="4"/>
+</svg>
