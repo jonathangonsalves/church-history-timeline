@@ -382,9 +382,12 @@
       flex-shrink: 0;
       overflow: hidden;
     }
+    .ov-col-header .ov-h-left { display: flex; flex-direction: column; align-items: center; }
     .ov-col-header .ov-h-icon { font-size: 1.6rem; display: block; margin-bottom: 3px; }
     .ov-col-header .ov-h-year { font-size: 1.1rem; font-weight: bold; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
     .ov-col-header .ov-h-name { font-size: 0.65rem; display: block; opacity: 0.9; margin-top: 2px; letter-spacing: 0.03em; }
+    .ov-col-header .ov-h-chevron { display: none; }
+    .ov-col-body { display: flex; flex-direction: column; flex: 1; }
 
     .ov-events {
       flex: 1;
@@ -658,6 +661,81 @@
       border-style: solid;
     }
     .ov-col.parallel-collapsed .ov-fork-banner:hover .fork-chevron { background: white; }
+
+    /* ── MOBILE RESPONSIVE (≤768px) ─────────────────── */
+    @media (max-width: 768px) {
+      #header { padding: 14px 16px 12px; }
+      #header h1 { font-size: 1rem; }
+
+      #content-area { padding: 12px 10px; overflow-x: hidden; }
+
+      .overview-grid {
+        flex-direction: column;
+        min-width: unset;
+        width: 100%;
+        border-radius: 8px;
+      }
+
+      .ov-col {
+        width: 100% !important;
+        border-right: none;
+        border-bottom: 1.5px solid #d8d0c0;
+        flex-shrink: unset;
+      }
+      .ov-col:last-child { border-bottom: none; }
+
+      /* Header becomes a horizontal tap row */
+      .ov-col-header {
+        height: auto !important;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        cursor: pointer;
+        user-select: none;
+        gap: 10px;
+      }
+      .ov-col-header .ov-h-left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+      }
+      .ov-col-header .ov-h-icon { font-size: 1.4rem; flex-shrink: 0; margin-bottom: 0; }
+      .ov-col-header .ov-h-text { text-align: left; display: flex; flex-direction: column; }
+      .ov-col-header .ov-h-year { font-size: 0.95rem; }
+      .ov-col-header .ov-h-name { font-size: 0.65rem; }
+      .ov-col-header .ov-h-chevron {
+        display: block;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        opacity: 0.7;
+        transition: transform 0.3s;
+        margin-left: 6px;
+      }
+      .ov-fork-banner { margin: 0 0 0 8px; flex-shrink: 0; }
+
+      /* Body hidden when mobile-collapsed */
+      .ov-col.mobile-collapsed .ov-col-body { display: none; }
+      .ov-col.mobile-collapsed .ov-h-chevron { transform: rotate(-90deg); }
+
+      /* Stack tracks vertically on mobile */
+      .ov-tracks { flex-direction: column; }
+      .ov-track.track-parallel {
+        border-left: none;
+        border-top: 2px dashed #d0c8b0;
+      }
+      /* Remove fixed widths so tracks fill full width */
+      .ov-col.has-parallel .ov-track,
+      .ov-col.has-parallel .ov-events { width: 100% !important; min-width: 0 !important; }
+      /* Time-aligned abs events: use flow positions always on mobile */
+      .ov-event-abs, .branch-fork-svg, .branch-merge-svg { transition: none !important; }
+
+      /* Tracks in mobile: prevent horizontal overflow */
+      .ov-col .ov-events { overflow: hidden; }
+    }
   </style>
 <script>
 const PORTRAIT_URIS = {
@@ -1394,14 +1472,21 @@ function showOverview() {
 
     return `
       <div class="ov-col${hasParallel ? ' has-parallel parallel-collapsed' : ''}">
-        <div class="ov-col-header" style="background:${p.color}">
-          <span class="ov-h-icon">${p.icon}</span>
-          <span class="ov-h-year">${p.tabYear}</span>
-          <span class="ov-h-name">${p.tabName}</span>
-          ${hasParallel ? `<div class="ov-fork-banner" onclick="toggleParallel(this)"><span class="fork-icon">⑂</span><span class="fork-label">${p.parallelTrack.label}</span><span class="fork-chevron">▶</span></div>` : ''}
+        <div class="ov-col-header" style="background:${p.color}" onclick="toggleMobileCol(this)">
+          <div class="ov-h-left">
+            <span class="ov-h-icon">${p.icon}</span>
+            <div class="ov-h-text">
+              <span class="ov-h-year">${p.tabYear}</span>
+              <span class="ov-h-name">${p.tabName}</span>
+            </div>
+          </div>
+          <span class="ov-h-chevron">▼</span>
+          ${hasParallel ? `<div class="ov-fork-banner" onclick="event.stopPropagation();toggleParallel(this)"><span class="fork-icon">⑂</span><span class="fork-label">${p.parallelTrack.label}</span><span class="fork-chevron">▶</span></div>` : ''}
         </div>
-        ${bodyHTML}
-        ${periodFigures.length ? `<div class="ov-figures">${figuresHTML}</div>` : ''}
+        <div class="ov-col-body">
+          ${bodyHTML}
+          ${periodFigures.length ? `<div class="ov-figures">${figuresHTML}</div>` : ''}
+        </div>
       </div>
     `;
   }).join('');
@@ -1438,8 +1523,22 @@ function toggleParallel(banner) {
   }
 }
 
+function toggleMobileCol(header) {
+  if (window.innerWidth > 768) return;
+  const col = header.closest('.ov-col');
+  col.classList.toggle('mobile-collapsed');
+}
+
+function initMobile() {
+  if (window.innerWidth > 768) return;
+  document.querySelectorAll('.ov-col').forEach(col => {
+    col.classList.add('mobile-collapsed');
+  });
+}
+
 // ── Init ──
 showOverview();
+initMobile();
 </script>
 </body>
 </html>
